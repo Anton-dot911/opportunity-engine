@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseFeed } from './rss-atom.js';
+import { fetchFeed, parseFeed } from './rss-atom.js';
 
 describe('RSS and Atom parsing', () => {
   it('parses RSS items and strips markup from descriptions', () => {
@@ -41,5 +41,19 @@ describe('RSS and Atom parsing', () => {
     ).join('');
     const items = parseFeed(`<rss><channel>${entries}</channel></rss>`);
     expect(items).toHaveLength(50);
+  });
+
+  it('resolves relative RSS item links against the feed URL', () => {
+    const items = parseFeed(
+      '<rss><channel><item><title>Relative</title><link>/news/42</link></item></channel></rss>',
+      'https://feeds.example.org/latest.xml',
+    );
+    expect(items[0]!.url).toBe('https://feeds.example.org/news/42');
+  });
+
+  it('rejects private network targets before making a request', async () => {
+    await expect(fetchFeed('http://127.0.0.1/private.xml')).rejects.toThrow('FEED_HOST_BLOCKED');
+    await expect(fetchFeed('http://169.254.169.254/latest/meta-data')).rejects.toThrow('FEED_HOST_BLOCKED');
+    await expect(fetchFeed('ftp://example.org/feed.xml')).rejects.toThrow('FEED_URL_UNSUPPORTED');
   });
 });
