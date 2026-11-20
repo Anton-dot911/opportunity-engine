@@ -7,7 +7,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "pnpm --filter @oe/database build && concurrently -k -n api,web -c blue,green \"pnpm --filter @oe/api dev\" \"pnpm --filter @oe/web dev\"",
+    "dev": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && concurrently -k -n api,web -c blue,green \"pnpm --filter @oe/api dev\" \"pnpm --filter @oe/web dev\"",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
