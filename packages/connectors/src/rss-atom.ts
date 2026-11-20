@@ -89,7 +89,7 @@ function parseDate(value: unknown): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function normalizeItems(parsed: Record<string, any>): FeedItem[] {
+function normalizeItems(parsed: Record<string, any>, baseUrl?: string): FeedItem[] {
   const rssChannel = parsed.rss?.channel;
   const atomFeed = parsed.feed;
   let rawItems: any[] = [];
@@ -119,7 +119,8 @@ function normalizeItems(parsed: Record<string, any>): FeedItem[] {
 
     let canonicalUrl: string;
     try {
-      canonicalUrl = new URL(url).toString();
+      canonicalUrl = new URL(url, baseUrl).toString();
+      if (!['http:', 'https:'].includes(new URL(canonicalUrl).protocol)) return [];
     } catch {
       return [];
     }
@@ -141,10 +142,10 @@ function normalizeItems(parsed: Record<string, any>): FeedItem[] {
   });
 }
 
-export function parseFeed(xml: string): FeedItem[] {
+export function parseFeed(xml: string, baseUrl?: string): FeedItem[] {
   const validation = XMLValidator.validate(xml);
   if (validation !== true) throw new Error('FEED_XML_INVALID');
-  return normalizeItems(parser.parse(xml) as Record<string, any>);
+  return normalizeItems(parser.parse(xml) as Record<string, any>, baseUrl);
 }
 
 export async function fetchFeed(
@@ -184,7 +185,7 @@ export async function fetchFeed(
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (bytes.byteLength > MAX_FEED_BYTES) throw new Error('FEED_TOO_LARGE');
   const xml = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
-  const items = parseFeed(xml);
+  const items = parseFeed(xml, currentUrl);
   const format = /<\s*feed(?:\s|>)/i.test(xml) ? 'atom' : 'rss';
   return { items, finalUrl: currentUrl, format };
 }
