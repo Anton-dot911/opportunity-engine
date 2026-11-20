@@ -4,9 +4,10 @@ import { IngestionService } from './service.js';
 
 const paramsSchema = z.object({ id: z.string().uuid() });
 
-export async function registerIngestionRoutes(app: FastifyInstance): Promise<void> {
-  const ingestion = new IngestionService();
-
+export function registerIngestionRoutes(
+  app: FastifyInstance,
+  ingestion = new IngestionService(),
+): void {
   app.post('/api/sources/:id/ingest', async (request, reply) => {
     const parsed = paramsSchema.safeParse(request.params);
     if (!parsed.success) {
