@@ -6,7 +6,7 @@ const paramsSchema = z.object({ id: z.string().uuid() });
 
 export function registerIngestionRoutes(
   app: FastifyInstance,
-  ingestion = new IngestionService(),
+  ingestion: Pick<IngestionService, 'ingestSource'> = new IngestionService(),
 ): void {
   app.post('/api/sources/:id/ingest', async (request, reply) => {
     const parsed = paramsSchema.safeParse(request.params);
