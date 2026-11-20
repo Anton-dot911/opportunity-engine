@@ -1,0 +1,27 @@
+{
+  "name": "@oe/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "pnpm --filter @oe/database build && tsc --noEmit -p tsconfig.json",
+    "test": "pnpm --filter @oe/database build && vitest run",
+    "lint": "prettier --check src",
+    "test:integration": "pnpm --filter @oe/database build && vitest run src/sources.integration.test.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@oe/database": "workspace:*",
+    "fastify": "^5.5.0",
+    "zod": "^4.1.5",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "tsx": "^4.20.5",
+    "vitest": "^3.2.4"
+  }
+}

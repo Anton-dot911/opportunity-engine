@@ -1,0 +1,11 @@
+{
+  "name": "Opportunity Engine",
+  "short_name": "Opp Engine",
+  "description": "Пошук, аналіз і перевірка економічних можливостей.",
+  "lang": "uk",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101827",
+  "theme_color": "#101827",
+  "icons": []
+}
