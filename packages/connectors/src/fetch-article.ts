@@ -74,28 +74,27 @@ export async function fetchArticleHtml(input: string, options: ArticleFetcherOpt
     const url = await validateArticleUrl(current, resolveHost);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    let response: Response;
     try {
-      response = await fetchImpl(url, { redirect: 'manual', signal: controller.signal, headers: { 'user-agent': 'OpportunityEngine/0.1 (+article research)', accept: 'text/html,application/xhtml+xml' } });
+      const response = await fetchImpl(url, { redirect: 'manual', signal: controller.signal, headers: { 'user-agent': 'OpportunityEngine/0.1 (+article research)', accept: 'text/html,application/xhtml+xml' } });
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        await response.body?.cancel();
+        if (redirectCount === maxRedirects) throw new Error('Too many article redirects');
+        const location = response.headers.get('location');
+        if (!location) throw new Error('Redirect response missing Location');
+        current = new URL(location, url).toString();
+        continue;
+      }
+      if (!response.ok) throw new Error(`Article request failed: HTTP ${response.status}`);
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!/text\\/html|application\\/xhtml\\+xml/i.test(contentType)) throw new Error('Article response is not HTML');
+      const declaredLength = Number(response.headers.get('content-length'));
+      if (Number.isFinite(declaredLength) && declaredLength > maxBytes) throw new Error('Article response exceeds size limit');
+      const body = await response.text();
+      if (Buffer.byteLength(body, 'utf8') > maxBytes) throw new Error('Article response exceeds size limit');
+      return { url: url.toString(), html: body, contentType };
     } finally {
       clearTimeout(timer);
     }
-
-    if ([301, 302, 303, 307, 308].includes(response.status)) {
-      if (redirectCount === maxRedirects) throw new Error('Too many article redirects');
-      const location = response.headers.get('location');
-      if (!location) throw new Error('Redirect response missing Location');
-      current = new URL(location, url).toString();
-      continue;
-    }
-    if (!response.ok) throw new Error(`Article request failed: HTTP ${response.status}`);
-    const contentType = response.headers.get('content-type') ?? '';
-    if (!/text\/html|application\/xhtml\+xml/i.test(contentType)) throw new Error('Article response is not HTML');
-    const declaredLength = Number(response.headers.get('content-length'));
-    if (Number.isFinite(declaredLength) && declaredLength > maxBytes) throw new Error('Article response exceeds size limit');
-    const body = await response.text();
-    if (Buffer.byteLength(body, 'utf8') > maxBytes) throw new Error('Article response exceeds size limit');
-    return { url: url.toString(), html: body, contentType };
   }
   throw new Error('Article fetch failed');
 }
