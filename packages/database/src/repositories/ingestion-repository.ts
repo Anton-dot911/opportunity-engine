@@ -25,8 +25,7 @@ export class IngestionRepository {
       `INSERT INTO documents
          (source_id, canonical_url, title, content, content_hash, published_at, metadata)
        VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
-       ON CONFLICT (source_id, canonical_url) WHERE canonical_url IS NOT NULL
-       DO NOTHING
+       ON CONFLICT DO NOTHING
        RETURNING id`,
       [
         input.sourceId,
@@ -38,15 +37,7 @@ export class IngestionRepository {
         JSON.stringify(input.metadata),
       ],
     );
-    if (result.rowCount) return true;
-
-    const duplicateByHash = await pool.query(
-      `SELECT 1 FROM documents
-       WHERE source_id = $1 AND content_hash = $2
-       LIMIT 1`,
-      [input.sourceId, input.contentHash],
-    );
-    return false;
+    return Boolean(result.rowCount);
   }
 
   async finishRun(input: {
