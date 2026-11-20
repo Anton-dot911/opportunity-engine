@@ -1,11 +1,12 @@
+import 'dotenv/config';
 import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { Pool } from 'pg';
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) throw new Error('DATABASE_URL is required.');
-
+const connectionString =
+  process.env.DATABASE_URL ??
+  'postgresql://oe:oe_local_dev@localhost:5432/opportunity_engine';
 const pool = new Pool({ connectionString });
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), '../migrations');
 
