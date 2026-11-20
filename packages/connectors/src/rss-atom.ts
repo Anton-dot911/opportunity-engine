@@ -57,7 +57,7 @@ async function assertPublicHttpUrl(value: string): Promise<URL> {
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
     throw new Error('FEED_URL_UNSUPPORTED');
   }
-  const hostname = url.hostname.toLowerCase();
+  const hostname = url.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
   if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
     throw new Error('FEED_HOST_BLOCKED');
   }
