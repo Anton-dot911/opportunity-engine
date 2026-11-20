@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import { z } from 'zod';
 import { SourceRepository } from '@oe/database';
 import { env } from './config/env.js';
+import { registerIngestionRoutes } from './ingestion/routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -53,6 +54,8 @@ export function buildApp() {
       return reply.code(503).send({ error: 'DATABASE_UNAVAILABLE' });
     }
   });
+
+  registerIngestionRoutes(app);
 
   return app;
 }
