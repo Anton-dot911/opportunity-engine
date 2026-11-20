@@ -1,50 +1,53 @@
 # Opportunity Engine
 
-AI-assisted system for discovering, explaining, validating, and prioritizing economically meaningful opportunities.
+Foundation implementation for the Opportunity Engine platform.
 
-## Core loop
+## Requirements
 
-Collect → Normalize → Detect → Enrich Context → Hypothesize → Validate → Rank → Experiment → Learn
+- Node.js 22+
+- pnpm 10+
+- Docker Desktop or Docker Engine
 
-The system converts fragmented information into traceable signals, testable hypotheses, and structured opportunities. It must distinguish observed facts from interpretations and assumptions. AI proposes; deterministic code validates data, performs calculations, and scores opportunities.
+## Local development
 
-## MVP
+```bash
+pnpm install
+cp .env.example .env
+docker compose up -d postgres
+pnpm db:migrate
+pnpm dev
+```
 
-1. Ingest information from configurable sources.
-2. Store normalized documents with source provenance.
-3. Extract candidate signals and entities.
-4. Connect signals to shared context.
-5. Generate falsifiable opportunity hypotheses.
-6. Create opportunity records with evidence, assumptions, risks, and unknowns.
-7. Present results in an operator dashboard.
+- Web: http://localhost:5173
+- API health: http://localhost:4000/api/health
+- Sources API: http://localhost:4000/api/sources
 
-The first release is operator-assisted, not unrestricted autonomy. External actions require explicit approval.
+## API endpoints
 
-## Architecture principles
+- `GET /api/health` — API process health.
+- `GET /api/sources` — list registered sources (maximum 100).
+- `POST /api/sources` — create a source. JSON body: `{ "name": "Example feed", "type": "rss", "locator": "https://example.com/feed.xml" }`.
 
-- Evidence before conclusions; preserve provenance.
-- Shared, versioned, provider-neutral context.
-- Deterministic economics and explainable scoring.
-- Modular monolith before microservices.
-- Bounded background jobs with budgets and audit trails.
-- Provider adapters for AI, search, and ingestion.
+Source types: `url`, `rss`, `atom`, `upload`, `api`.
 
-## Initial stack direction
+## Quality checks
 
-TypeScript, React + Vite PWA, Node.js + Fastify API, PostgreSQL, Zod, Vitest, Docker Compose, and an adapter-based AI runtime (Anthropic as the first provider). Exact dependency versions will be pinned during implementation.
+```bash
+pnpm typecheck
+pnpm test
+pnpm build
+```
 
-## Repository documentation
+## Current implementation
 
-- PLAN.md — scope, requirements, phases, acceptance criteria.
-- CLAUDE.md — coding-agent operating rules.
-- docs/ARCHITECTURE.md — system boundaries and data flow.
-- docs/DATA_MODEL.md — conceptual domain model.
-- docs/ROADMAP.md — milestone checklist.
+- React + Vite operator interface
+- Fastify API with validated environment configuration
+- API health endpoint and source registry endpoints
+- PostgreSQL schema migration runner and initial domain tables
+- Source repository backed by PostgreSQL
+- Docker Compose database service
+- pnpm workspace and GitHub Actions quality workflow
 
-## Status
+The database currently persists source registry records and provides initial tables for ingestion runs, documents, signals, generic context items, and evidence. AI Runtime, external connectors, and automated research are intentionally not enabled yet.
 
-Current phase: Foundation. Documentation initialized; application code is not implemented yet. Planned features must not be described as working until verified.
-
-## Security
-
-Never commit API keys, credentials, production data, or local environment files. Use .env.example for documented variable names.
+See [PLAN.md](./PLAN.md), [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md), and [docs/ROADMAP.md](./docs/ROADMAP.md).
