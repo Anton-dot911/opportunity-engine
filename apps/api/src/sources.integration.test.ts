@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest';
-import { pool } from '@oe/database';
+import { IngestionRepository, SourceRepository, pool } from '@oe/database';
 import { buildApp } from './app.js';
 
 const app = buildApp();
@@ -32,5 +32,26 @@ describe('source registry persistence', () => {
     expect(listResponse.statusCode).toBe(200);
     const sources = listResponse.json() as Array<{ id: string; locator: string }>;
     expect(sources.some((source) => source.id === created.id && source.locator === locator)).toBe(true);
+  });
+
+  
+  it('deduplicates documents by source URL and content hash', async () => {
+    const source = await new SourceRepository().create({
+      name: 'Deduplication test source',
+      type: 'rss',
+      locator: `https://integration.example/${crypto.randomUUID()}/feed.xml`,
+    });
+    const repository = new IngestionRepository();
+    const base = {
+      sourceId: source.id,
+      title: 'Repeated item',
+      content: 'Same content',
+      contentHash: 'sha256-test-hash',
+      publishedAt: null,
+      metadata: { feedFormat: 'rss' },
+    };
+    expect(await repository.saveDocument({ ...base, canonicalUrl: 'https://example.org/item/1' })).toBe(true);
+    expect(await repository.saveDocument({ ...base, canonicalUrl: 'https://example.org/item/1' })).toBe(false);
+    expect(await repository.saveDocument({ ...base, canonicalUrl: 'https://example.org/item/2' })).toBe(false);
   });
 });

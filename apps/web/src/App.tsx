@@ -28,6 +28,7 @@ export function App() {
   const [locator, setLocator] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [ingestingId, setIngestingId] = useState<string | null>(null);
 
   const loadSources = useCallback(async () => {
     try {
@@ -78,6 +79,29 @@ export function App() {
       setMessage(error instanceof Error ? error.message : 'Невідома помилка.');
     } finally {
       setSaving(false);
+    }
+  }
+
+
+  async function handleIngest(source: Source) {
+    setIngestingId(source.id);
+    setMessage('');
+    try {
+      const response = await fetch('/api/sources/' + source.id + '/ingest', { method: 'POST' });
+      const result = (await response.json()) as {
+        itemsSeen?: number;
+        itemsCreated?: number;
+        reason?: string;
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(result.reason ?? result.error ?? 'Не вдалося отримати RSS/Atom стрічку.');
+      }
+      setMessage('Збір завершено: отримано ' + (result.itemsSeen ?? 0) + ', нових документів ' + (result.itemsCreated ?? 0) + '.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Помилка збору джерела.');
+    } finally {
+      setIngestingId(null);
     }
   }
 
@@ -136,6 +160,7 @@ export function App() {
               <div className="source-icon">{source.type.toUpperCase().slice(0, 3)}</div>
               <div className="source-details"><strong>{source.name}</strong><span>{source.locator}</span></div>
               <span className={source.enabled ? 'source-state enabled' : 'source-state'}>{source.enabled ? 'Увімкнено' : 'Вимкнено'}</span>
+              {(source.type === 'rss' || source.type === 'atom') && <button type="button" onClick={() => void handleIngest(source)} disabled={!health || !source.enabled || ingestingId !== null}>{ingestingId === source.id ? 'Збір…' : 'Зібрати'}</button>}
             </article>
           ))}
         </div>

@@ -26,6 +26,7 @@ pnpm dev
 
 - `GET /api/health` — API process health.
 - `GET /api/sources` — list registered sources (maximum 100).
+- `POST /api/sources/:id/ingest` — manually collect a registered RSS/Atom source and persist new feed entries.
 - `POST /api/sources` — create a source. JSON body: `{ "name": "Example feed", "type": "rss", "locator": "https://example.com/feed.xml" }`.
 
 Source types: `url`, `rss`, `atom`, `upload`, `api`.
@@ -48,6 +49,6 @@ pnpm build
 - Docker Compose database service
 - pnpm workspace and GitHub Actions quality workflow
 
-The database currently persists source registry records and provides initial tables for ingestion runs, documents, signals, generic context items, and evidence. AI Runtime, external connectors, and automated research are intentionally not enabled yet.
+The application supports operator-triggered RSS/Atom collection, feed-entry normalization, PostgreSQL document persistence, ingestion run tracking, and deduplication by source URL and content hash. Full article extraction, scheduled polling, AI Runtime, and automated research are not implemented yet. See [docs/INGESTION.md](./docs/INGESTION.md) for limits and security notes.
 
 See [PLAN.md](./PLAN.md), [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md), and [docs/ROADMAP.md](./docs/ROADMAP.md).
