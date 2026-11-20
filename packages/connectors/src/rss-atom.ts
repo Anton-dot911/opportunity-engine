@@ -26,7 +26,8 @@ const parser = new XMLParser({
 function isPrivateAddress(address: string): boolean {
   if (isIP(address) === 4) {
     const parts = address.split('.').map(Number);
-    const [a, b] = parts;
+    const a = parts[0] ?? 0;
+    const b = parts[1] ?? 0;
     return (
       a === 0 || a === 10 || a === 127 || a >= 224 ||
       (a === 100 && b >= 64 && b <= 127) ||
