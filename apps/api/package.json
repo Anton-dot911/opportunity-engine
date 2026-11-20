@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "typecheck": "pnpm --filter @oe/database build && tsc --noEmit -p tsconfig.json",
     "test": "pnpm --filter @oe/database build && vitest run",
-    "lint": "prettier --check src"
+    "lint": "prettier --check src",
+    "test:integration": "pnpm --filter @oe/database build && vitest run src/sources.integration.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
