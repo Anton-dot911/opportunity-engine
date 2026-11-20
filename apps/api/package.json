@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "lint": "eslint src"
+    "lint": "prettier --check src"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
