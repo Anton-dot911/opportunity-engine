@@ -16,7 +16,7 @@ describe('RSS and Atom parsing', () => {
       content: 'Demand increased .',
       metadata: { feedFormat: 'rss', guid: 'story-1' },
     });
-    expect(items[0].publishedAt?.toISOString()).toBe('2025-11-18T10:00:00.000Z');
+    expect(items[0]!.publishedAt?.toISOString()).toBe('2025-11-18T10:00:00.000Z');
   });
 
   it('parses Atom alternate links', () => {
@@ -26,7 +26,7 @@ describe('RSS and Atom parsing', () => {
         <summary>Short summary</summary><updated>2025-11-18T10:00:00Z</updated>
       </entry></feed>`);
     expect(items).toHaveLength(1);
-    expect(items[0].url).toBe('https://example.org/atom/1');
+    expect(items[0]!.url).toBe('https://example.org/atom/1');
     expect(items[0].content).toBe('Short summary');
   });
 
