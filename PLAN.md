@@ -107,4 +107,7 @@ Implementation exists; types and runtime validation are present; relevant tests 
 
 ## 12. Current status
 
-Phase 0 — Foundation. Initial documentation is being established. Application skeleton, database, API, UI, ingestion, AI runtime, and opportunity workflow are not implemented yet.
+- Phase 0 — Foundation: complete. React/Vite PWA, Fastify API, PostgreSQL migrations, source registry, CI, and PostgreSQL integration coverage are merged to main.
+- Phase 2 — Discovery: in progress. RSS/Atom connector, manual ingestion endpoint, source/document persistence, run tracking, and operator-triggered collection are implemented on the current feature branch. Scheduled polling and manual URL/document ingestion remain outstanding.
+- Phase 3 — Document Pipeline: partially implemented through feed-item normalization and URL/content-hash deduplication. Full-page extraction, language detection, and searchable document workflows remain outstanding.
+- Phases 1 and 4–11: not started.
