@@ -27,7 +27,7 @@ describe('RSS and Atom parsing', () => {
       </entry></feed>`);
     expect(items).toHaveLength(1);
     expect(items[0]!.url).toBe('https://example.org/atom/1');
-    expect(items[0].content).toBe('Short summary');
+    expect(items[0]!.content).toBe('Short summary');
   });
 
   it('rejects malformed XML and unsupported documents', () => {
