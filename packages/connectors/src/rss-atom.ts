@@ -32,15 +32,16 @@ function isPrivateAddress(address: string): boolean {
       (a === 100 && b >= 64 && b <= 127) ||
       (a === 169 && b === 254) ||
       (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168) ||
-      (a === 198 && (b === 18 || b === 19))
+      (a === 192 && (b === 0 || b === 2 || b === 168)) ||
+      (a === 192 && b === 88 && parts[2] === 99) ||
+      (a === 198 && (b === 18 || b === 19 || b === 51)) ||
+      (a === 203 && b === 0 && parts[2] === 113)
     );
   }
   if (isIP(address) === 6) {
     const normalized = address.toLowerCase();
-    return normalized === '::' || normalized === '::1' ||
-      normalized.startsWith('fc') || normalized.startsWith('fd') ||
-      /^fe[89ab]/.test(normalized) || normalized.startsWith('::ffff:');
+    const firstGroup = Number.parseInt(normalized.split(':')[0] || '0', 16);
+    return firstGroup < 0x2000 || firstGroup > 0x3fff || normalized.startsWith('2001:db8:');
   }
   return true;
 }
@@ -182,8 +183,26 @@ export async function fetchFeed(
   }
   const declaredLength = Number(response.headers.get('content-length') ?? 0);
   if (declaredLength > MAX_FEED_BYTES) throw new Error('FEED_TOO_LARGE');
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  if (bytes.byteLength > MAX_FEED_BYTES) throw new Error('FEED_TOO_LARGE');
+  if (!response.body) throw new Error('FEED_BODY_EMPTY');
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    totalBytes += value.byteLength;
+    if (totalBytes > MAX_FEED_BYTES) {
+      await reader.cancel();
+      throw new Error('FEED_TOO_LARGE');
+    }
+    chunks.push(value);
+  }
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
   const xml = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   const items = parseFeed(xml, currentUrl);
   const format = /<\s*feed(?:\s|>)/i.test(xml) ? 'atom' : 'rss';
