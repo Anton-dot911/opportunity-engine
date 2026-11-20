@@ -1,9 +1,8 @@
 import { Pool } from 'pg';
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error('DATABASE_URL is required to initialize the database pool.');
-}
+const connectionString =
+  process.env.DATABASE_URL ??
+  'postgresql://oe:oe_local_dev@localhost:5432/opportunity_engine';
 
 export const pool = new Pool({
   connectionString,
