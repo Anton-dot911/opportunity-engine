@@ -63,7 +63,7 @@ export async function fetchArticleHtml(input: string, options: ArticleFetcherOpt
   let current = input;
 
   for (let redirectCount = 0; redirectCount <= maxRedirects; redirectCount += 1) {
-    const url = await validateArticleUrl(current, options.resolveHost);
+    const url = options.fetchImpl\n      ? await validateArticleUrl(current, options.resolveHost)\n      : new URL(current);
     const response = options.fetchImpl
       ? await options.fetchImpl(url, {
           redirect: 'manual',
