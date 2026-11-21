@@ -48,7 +48,10 @@ pnpm build
 - Source repository backed by PostgreSQL
 - Docker Compose database service
 - pnpm workspace and GitHub Actions quality workflow
+- Operator-triggered RSS/Atom collection, feed-entry normalization, PostgreSQL document persistence, ingestion run tracking, and URL/content-hash deduplication
+- Article-fetching connector with HTTP(S) validation, bounded redirects, timeout, response-type checks, and streamed byte limit
+- Readability-based article extraction with metadata, normalized text, and SHA-256 content hash
 
-The application supports operator-triggered RSS/Atom collection, feed-entry normalization, PostgreSQL document persistence, ingestion run tracking, and deduplication by source URL and content hash. Full article extraction, scheduled polling, AI Runtime, and automated research are not implemented yet. See [docs/INGESTION.md](./docs/INGESTION.md) for limits and security notes.
+Full-page extraction is available as a connector primitive but is not yet wired into the ingestion endpoint or persisted to the document pipeline. Scheduled polling, manual URL/document ingestion, AI Runtime, and automated research remain unimplemented.
 
-See [PLAN.md](./PLAN.md), [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md), and [docs/ROADMAP.md](./docs/ROADMAP.md).
+See [docs/INGESTION.md](./docs/INGESTION.md) for ingestion limits and security notes, [PLAN.md](./PLAN.md), [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md), and [docs/ROADMAP.md](./docs/ROADMAP.md).
