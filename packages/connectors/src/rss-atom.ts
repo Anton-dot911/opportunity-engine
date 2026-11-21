@@ -1,5 +1,4 @@
-import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
+import { resolveAndValidate, secureHttpGet } from './secure-http.js';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
 export type FeedItem = {
@@ -12,7 +11,6 @@ export type FeedItem = {
 
 const MAX_FEED_BYTES = 1_000_000;
 const MAX_ITEMS = 50;
-const FETCH_TIMEOUT_MS = 8_000;
 const MAX_REDIRECTS = 3;
 
 const parser = new XMLParser({
@@ -158,18 +156,35 @@ export async function fetchFeed(
   let response: Response | undefined;
 
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
-    const safeUrl = await assertPublicHttpUrl(currentUrl);
-    response = await fetchImpl(safeUrl, {
-      method: 'GET',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: {
-        accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9',
-        'user-agent': 'OpportunityEngine/0.1 (+RSS feed reader)',
-      },
-    });
+    let safeUrl: URL;
+    try {
+      safeUrl = new URL(currentUrl);
+    } catch {
+      throw new Error('FEED_URL_INVALID');
+    }
+    if (!['http:', 'https:'].includes(safeUrl.protocol) || safeUrl.username || safeUrl.password) {
+      throw new Error('FEED_URL_UNSUPPORTED');
+    }
+    try {
+      await resolveAndValidate(safeUrl.hostname);
+    } catch {
+      throw new Error('FEED_HOST_BLOCKED');
+    }
+    response = fetchImpl !== fetch
+      ? await fetchImpl(safeUrl, {
+          method: 'GET',
+          redirect: 'manual',
+          signal: AbortSignal.timeout(8_000),
+          headers: {
+            accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9',
+            'user-agent': 'OpportunityEngine/0.1 (+RSS feed reader)',
+          },
+        })
+      : await secureHttpGet(safeUrl, { timeoutMs: 8_000, maxBytes: MAX_FEED_BYTES });
+
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location');
+      await response.body?.cancel();
       if (!location || redirect === MAX_REDIRECTS) throw new Error('FEED_REDIRECT_LIMIT');
       currentUrl = new URL(location, safeUrl).toString();
       continue;
@@ -179,24 +194,32 @@ export async function fetchFeed(
 
   if (!response?.ok) throw new Error(`FEED_HTTP_ERROR_${response?.status ?? 'UNKNOWN'}`);
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
-  if (contentType && !/(xml|rss|atom|text\/plain)/.test(contentType)) {
+  if (contentType && !/(xml|rss|atom|text\\/plain)/.test(contentType)) {
+    await response.body?.cancel();
     throw new Error('FEED_CONTENT_TYPE_UNSUPPORTED');
   }
   const declaredLength = Number(response.headers.get('content-length') ?? 0);
-  if (declaredLength > MAX_FEED_BYTES) throw new Error('FEED_TOO_LARGE');
+  if (declaredLength > MAX_FEED_BYTES) {
+    await response.body?.cancel();
+    throw new Error('FEED_TOO_LARGE');
+  }
   if (!response.body) throw new Error('FEED_BODY_EMPTY');
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let totalBytes = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    totalBytes += value.byteLength;
-    if (totalBytes > MAX_FEED_BYTES) {
-      await reader.cancel();
-      throw new Error('FEED_TOO_LARGE');
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_FEED_BYTES) {
+        await reader.cancel();
+        throw new Error('FEED_TOO_LARGE');
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+  } finally {
+    reader.releaseLock();
   }
   const bytes = new Uint8Array(totalBytes);
   let offset = 0;
@@ -206,6 +229,6 @@ export async function fetchFeed(
   }
   const xml = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   const items = parseFeed(xml, currentUrl);
-  const format = /<\s*feed(?:\s|>)/i.test(xml) ? 'atom' : 'rss';
+  const format = /<\\s*feed(?:\\s|>)/i.test(xml) ? 'atom' : 'rss';
   return { items, finalUrl: currentUrl, format };
 }
