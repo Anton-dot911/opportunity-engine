@@ -29,7 +29,7 @@ function isPrivateIPv4(ip: string): boolean {
 }
 
 function isPrivateIPv6(ip: string): boolean {
-  const v = ip.toLowerCase().split('%')[0];
+  const v = ip.toLowerCase().split('%')[0] ?? '';
   return v === '::' || v === '::1' || v.startsWith('fc') || v.startsWith('fd') ||
     /^fe[89ab]/.test(v) || v.startsWith('ff') || v.startsWith('2001:db8') ||
     v.startsWith('::ffff:') || v.startsWith('2002:');
