@@ -18,9 +18,12 @@
     "lint": "prettier --check src"
   },
   "dependencies": {
-    "fast-xml-parser": "^5.2.5"
+    "@mozilla/readability": "^0.6.0",
+    "fast-xml-parser": "^5.2.5",
+    "jsdom": "^26.1.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^22.18.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
