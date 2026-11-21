@@ -38,12 +38,18 @@ describe('extractArticle', () => {
     expect(result.contentHash).toHaveLength(64);
   });
 
-  it('decodes HTML entities and falls back for very short pages', () => {
+  it('decodes HTML entities on short pages', () => {
     const result = extractArticle('<html><head><title>Short</title></head><body><p>Supply &amp; demand</p></body></html>', 'https://example.org/short');
     expect(result.text).toContain('Supply & demand');
     expect(result.title).toBe('Short');
+  });
+
+  it('uses the body fallback when Readability cannot parse a page', () => {
+    const result = extractArticle('<html><head><title>Empty</title></head><body></body></html>', 'https://example.org/empty');
+    expect(result.text).toBe('');
     expect(result.extractionMethod).toBe('body-fallback');
   });
+
 
   it('ignores invalid canonical URLs and uses the source URL', () => {
     const result = extractArticle('<link rel="canonical" href="javascript:alert(1)"><article><p>Some content.</p></article>', 'https://example.org/source');
