@@ -19,13 +19,15 @@ const DEFAULTS = { timeoutMs: 8000, maxBytes: 1_000_000, maxRedirects: 4 };
 
 function isPrivateIPv4(ip: string): boolean {
   const p = ip.split('.').map(Number);
-  if (p.length !== 4 || p.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return true;
-  return p[0] === 10 || p[0] === 127 || p[0] === 0 ||
-    (p[0] === 169 && p[1] === 254) || (p[0] === 172 && p[1] >= 16 && p[1] <= 31) ||
-    (p[0] === 192 && p[1] === 168) || (p[0] === 100 && p[1] >= 64 && p[1] <= 127) ||
-    (p[0] === 192 && p[1] === 0) || (p[0] === 192 && p[1] === 2) ||
-    (p[0] === 198 && (p[1] === 18 || p[1] === 19 || p[1] === 51)) ||
-    (p[0] === 203 && p[1] === 0 && p[2] === 113) || p[0] >= 224;
+  const [a, b, c, d] = p;
+  if (a === undefined || b === undefined || c === undefined || d === undefined ||
+    p.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return true;
+  return a === 10 || a === 127 || a === 0 ||
+    (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) ||
+    (a === 192 && b === 0) || (a === 192 && b === 2) ||
+    (a === 198 && (b === 18 || b === 19 || b === 51)) ||
+    (a === 203 && b === 0 && c === 113) || a >= 224;
 }
 
 function isPrivateIPv6(ip: string): boolean {
