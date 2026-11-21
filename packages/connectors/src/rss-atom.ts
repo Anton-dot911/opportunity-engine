@@ -165,10 +165,12 @@ export async function fetchFeed(
     if (!['http:', 'https:'].includes(safeUrl.protocol) || safeUrl.username || safeUrl.password) {
       throw new Error('FEED_URL_UNSUPPORTED');
     }
-    try {
-      await resolveAndValidate(safeUrl.hostname);
-    } catch {
-      throw new Error('FEED_HOST_BLOCKED');
+    if (fetchImpl !== fetch) {
+      try {
+        await resolveAndValidate(safeUrl.hostname);
+      } catch {
+        throw new Error('FEED_HOST_BLOCKED');
+      }
     }
     response = fetchImpl !== fetch
       ? await fetchImpl(safeUrl, {
@@ -194,7 +196,7 @@ export async function fetchFeed(
 
   if (!response?.ok) throw new Error(`FEED_HTTP_ERROR_${response?.status ?? 'UNKNOWN'}`);
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
-  if (contentType && !/(xml|rss|atom|text\\/plain)/.test(contentType)) {
+  if (contentType && !/(xml|rss|atom|text\/plain)/.test(contentType)) {
     await response.body?.cancel();
     throw new Error('FEED_CONTENT_TYPE_UNSUPPORTED');
   }
@@ -229,6 +231,6 @@ export async function fetchFeed(
   }
   const xml = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   const items = parseFeed(xml, currentUrl);
-  const format = /<\\s*feed(?:\\s|>)/i.test(xml) ? 'atom' : 'rss';
+  const format = /<\s*feed(?:\s|>)/i.test(xml) ? 'atom' : 'rss';
   return { items, finalUrl: currentUrl, format };
 }
