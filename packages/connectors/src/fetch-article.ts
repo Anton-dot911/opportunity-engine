@@ -78,7 +78,7 @@ export async function fetchArticleHtml(input: string, options: ArticleFetcherOpt
       : await secureHttpGet(url, {
           timeoutMs,
           maxBytes,
-          resolveHost: options.resolveHost,
+          ...(options.resolveHost ? { resolveHost: options.resolveHost } : {}),
         });
 
     if ([301, 302, 303, 307, 308].includes(response.status)) {
