@@ -107,7 +107,12 @@ Implementation exists; types and runtime validation are present; relevant tests 
 
 ## 12. Current status
 
-- Phase 0 — Foundation: complete. React/Vite PWA, Fastify API, PostgreSQL migrations, source registry, CI, and PostgreSQL integration coverage are merged to main.
-- Phase 2 — Discovery: in progress. RSS/Atom connector, manual ingestion endpoint, source/document persistence, run tracking, and operator-triggered collection are implemented on the current feature branch. Scheduled polling and manual URL/document ingestion remain outstanding.
-- Phase 3 — Document Pipeline: partially implemented through feed-item normalization and URL/content-hash deduplication. Full-page extraction, language detection, and searchable document workflows remain outstanding.
-- Phases 1 and 4–11: not started.
+- Phase 0 — Foundation: complete on `main`.
+- Phase 2 — Discovery: RSS/Atom source registration, operator-triggered ingestion, ingestion runs, document persistence, and deduplication are implemented. Manual URL/document ingestion and scheduled collection remain outstanding.
+- Phase 3 — Document Pipeline: basic article extraction was implemented; this branch replaces it with Readability-based extraction, canonical URL handling, metadata, text normalization, and hashing. Full extraction is not yet wired into ingestion or persisted as a processing result.
+- Phase 1 — AI Runtime and Phases 4–11: not started.
+- Main currently has a failing CI run after PR #4 due to a malformed content-type regular expression in the article fetcher. This branch fixes that regression and adds streamed response-size enforcement.
+
+## 13. Next implementation step
+
+Wire the article fetcher and Readability extractor into the document processing workflow, persist extracted text and processing metadata, and make the processing state retryable. Do not begin AI signal extraction until this deterministic pipeline is verified end to end.
