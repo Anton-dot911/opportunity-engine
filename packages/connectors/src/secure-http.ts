@@ -97,6 +97,7 @@ export type SecureHttpOptions = {
   timeoutMs: number;
   maxBytes: number;
   resolveHost?: ResolveHost;
+  headers?: Record<string, string>;
 };
 
 export async function secureHttpGet(input: URL, options: SecureHttpOptions): Promise<Response> {
@@ -110,7 +111,8 @@ export async function secureHttpGet(input: URL, options: SecureHttpOptions): Pro
     headers: {
       host: input.host,
       'user-agent': 'OpportunityEngine/0.1',
-      accept: '*/*',
+      accept: options.headers?.accept ?? '*/*',
+      ...options.headers,
     },
     lookup: createPinnedLookup(pinnedAddress),
     ...(input.protocol === 'https:' ? { servername: input.hostname.replace(/^\[|\]$/g, '') } : {}),
@@ -136,11 +138,9 @@ export async function secureHttpGet(input: URL, options: SecureHttpOptions): Pro
           if (Array.isArray(value)) value.forEach((entry) => headers.append(name, entry));
           else if (value !== undefined) headers.set(name, String(value));
         }
-        resolve(new Response(Buffer.concat(chunks), {
-          status: response.statusCode ?? 502,
-          statusText: response.statusMessage,
-          headers,
-        }));
+        const init: ResponseInit = { status: response.statusCode ?? 502, headers };
+        if (response.statusMessage) init.statusText = response.statusMessage;
+        resolve(new Response(Buffer.concat(chunks), init));
       });
       response.on('error', reject);
     });
