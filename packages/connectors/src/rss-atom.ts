@@ -21,53 +21,6 @@ const parser = new XMLParser({
   processEntities: false,
 });
 
-function isPrivateAddress(address: string): boolean {
-  if (isIP(address) === 4) {
-    const parts = address.split('.').map(Number);
-    const a = parts[0] ?? 0;
-    const b = parts[1] ?? 0;
-    return (
-      a === 0 || a === 10 || a === 127 || a >= 224 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && (b === 0 || b === 2 || b === 168)) ||
-      (a === 192 && b === 88 && parts[2] === 99) ||
-      (a === 198 && (b === 18 || b === 19 || b === 51)) ||
-      (a === 203 && b === 0 && parts[2] === 113)
-    );
-  }
-  if (isIP(address) === 6) {
-    const normalized = address.toLowerCase();
-    const firstGroup = Number.parseInt(normalized.split(':')[0] || '0', 16);
-    return firstGroup < 0x2000 || firstGroup > 0x3fff || normalized.startsWith('2001:db8:');
-  }
-  return true;
-}
-
-async function assertPublicHttpUrl(value: string): Promise<URL> {
-  let url: URL;
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error('FEED_URL_INVALID');
-  }
-  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
-    throw new Error('FEED_URL_UNSUPPORTED');
-  }
-  const hostname = url.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
-  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
-    throw new Error('FEED_HOST_BLOCKED');
-  }
-  const addresses = isIP(hostname)
-    ? [{ address: hostname }]
-    : await lookup(hostname, { all: true, verbatim: true });
-  if (addresses.length === 0 || addresses.some(({ address }) => isPrivateAddress(address))) {
-    throw new Error('FEED_HOST_BLOCKED');
-  }
-  return url;
-}
-
 function asText(value: unknown): string | null {
   if (typeof value === 'string' || typeof value === 'number') return String(value).trim() || null;
   if (value && typeof value === 'object' && '#text' in value) return asText((value as { '#text': unknown })['#text']);
