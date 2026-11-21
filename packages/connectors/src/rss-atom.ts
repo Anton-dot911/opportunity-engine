@@ -125,7 +125,8 @@ export async function fetchFeed(
         throw new Error('FEED_HOST_BLOCKED');
       }
     }
-    response = fetchImpl !== fetch
+    try {
+      response = fetchImpl !== fetch
       ? await fetchImpl(safeUrl, {
           method: 'GET',
           redirect: 'manual',
@@ -140,6 +141,11 @@ export async function fetchFeed(
           maxBytes: MAX_FEED_BYTES,
           headers: { accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9' },
         });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/private|reserved|invalid IP|did not resolve/i.test(message)) throw new Error('FEED_HOST_BLOCKED');
+      throw error;
+    }
 
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location');
