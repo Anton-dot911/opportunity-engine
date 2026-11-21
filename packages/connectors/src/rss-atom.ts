@@ -182,7 +182,11 @@ export async function fetchFeed(
             'user-agent': 'OpportunityEngine/0.1 (+RSS feed reader)',
           },
         })
-      : await secureHttpGet(safeUrl, {\n          timeoutMs: 8_000,\n          maxBytes: MAX_FEED_BYTES,\n          headers: { accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9' },\n        });
+      : await secureHttpGet(safeUrl, {
+          timeoutMs: 8_000,
+          maxBytes: MAX_FEED_BYTES,
+          headers: { accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9' },
+        });
 
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location');
