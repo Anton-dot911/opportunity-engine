@@ -1,33 +1,28 @@
 # Implementation Roadmap
 
-## Current milestone: Foundation
+## Current milestone: Document Pipeline
 
-- [ ] Confirm repository conventions and default branch.
-- [ ] Add application workspace skeleton.
-- [ ] Add strict TypeScript configuration.
-- [ ] Add formatting, linting, and tests.
-- [ ] Add validated environment configuration.
-- [ ] Add PostgreSQL Docker Compose service and health check.
-- [ ] Add API health endpoint.
-- [ ] Add CI workflow for install, lint, type-check, and tests.
-- [ ] Verify clean setup from documented instructions.
+### Completed
+- [x] Phase 0 Foundation: workspace, PWA, API, PostgreSQL, migrations, CI.
+- [x] Source registry and RSS/Atom parser.
+- [x] Operator-triggered RSS/Atom ingestion and ingestion-run tracking.
+- [x] Persist feed entries with source URL and content-hash deduplication.
+- [x] Article fetcher connector (bounded redirects, timeout, HTTP(S), content-type validation).
+- [x] Readability article extraction connector (this branch; awaiting CI and merge).
 
-### Foundation exit criteria
+### In progress / remaining
+- [ ] Fix CI regression introduced by PR #4.
+- [ ] Add streaming article response-size enforcement.
+- [ ] Wire fetch + extraction into document ingestion.
+- [ ] Persist extracted text, extractor version, language, and processing errors.
+- [ ] Make document processing status and retry behavior reliable.
+- [ ] Manual URL/document ingestion.
+- [ ] Scheduled RSS/Atom collection.
 
-- Fresh checkout installs using documented commands.
-- Web and API processes start locally.
-- API health endpoint returns structured status.
-- Database starts locally and connectivity is verified.
-- Lint, type-check, and tests pass.
-- No secrets are committed.
-
-## Subsequent milestones
-
+### Later milestones
 | Milestone | Deliverable | Exit evidence |
 |---|---|---|
 | AI Runtime | Provider-neutral structured generation | Validated output from adapter test |
-| Discovery | Source registry and RSS/manual ingestion | Collected items with provenance |
-| Document Pipeline | Normalization, extraction, deduplication | Repeated ingestion creates no duplicates |
 | Signal Engine | Evidence-linked candidate signals | Signal links to source document |
 | Context Layer | Versioned context and relationships | Retrieval/update integration test |
 | Hypothesis Engine | Falsifiable hypotheses | Evidence, assumptions, falsification criteria present |
