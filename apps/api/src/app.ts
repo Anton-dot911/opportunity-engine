@@ -6,6 +6,7 @@ import { env } from './config/env.js';
 import { registerIngestionRoutes } from './ingestion/routes.js';
 import { registerDocumentProcessingRoutes } from './ingestion/document-processing-routes.js';
 import { registerSignalRoutes } from './signals/signal-routes.js';
+import { registerEntityRoutes } from './entities/entity-routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -33,5 +34,6 @@ export function buildApp() {
   registerIngestionRoutes(app);
   registerDocumentProcessingRoutes(app);
   registerSignalRoutes(app);
+  registerEntityRoutes(app);
   return app;
 }
