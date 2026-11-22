@@ -107,12 +107,14 @@ Implementation exists; types and runtime validation are present; relevant tests 
 
 ## 12. Current status
 
-- Phase 0 — Foundation: complete on `main`.
-- Phase 2 — Discovery: RSS/Atom source registration, operator-triggered ingestion, ingestion runs, document persistence, and deduplication are implemented. Manual URL/document ingestion and scheduled collection remain outstanding.
-- Phase 3 — Document Pipeline: basic article extraction was implemented; this branch replaces it with Readability-based extraction, canonical URL handling, metadata, text normalization, and hashing. Full extraction is not yet wired into ingestion or persisted as a processing result.
-- Phase 1 — AI Runtime and Phases 4–11: not started.
-- Main currently has a failing CI run after PR #4 due to a malformed content-type regular expression in the article fetcher. This branch fixes that regression and adds streamed response-size enforcement.
+- Phase 0 — Foundation: complete.
+- Discovery: RSS/Atom ingestion and document persistence are implemented; manual URL/document intake and scheduled collection remain outstanding.
+- Document Pipeline: secure article fetch, Readability extraction, normalization, metadata and retryable processing are implemented.
+- Signal Engine v1: deterministic candidate signals with source-document linkage and review state are implemented.
+- Entity & Relationship Layer v1: deterministic organization mentions and explicit relationships with evidence provenance are implemented.
+- Hypothesis Engine v1: recurring signal categories across at least two distinct documents produce draft hypotheses with mechanism, assumptions, falsification criteria, heuristic confidence, and linked signals. This does not validate a market opportunity.
+- AI Runtime, Context Layer, Opportunity Engine, Validation, Ranking, Research Loop, and Experiments remain future milestones.
 
 ## 13. Next implementation step
 
-Wire the article fetcher and Readability extractor into the document processing workflow, persist extracted text and processing metadata, and make the processing state retryable. Do not begin AI signal extraction until this deterministic pipeline is verified end to end.
+Build the generic Context Layer with versioned context items, provenance, lifecycle/review states, and retrieval. Keep it domain-agnostic and avoid adding a vector database until retrieval requirements justify it.

@@ -1,32 +1,28 @@
 # Implementation Roadmap
 
-## Current milestone: Document Pipeline
+## Current milestone: Hypothesis Engine v1
 
 ### Completed
-- [x] Phase 0 Foundation: workspace, PWA, API, PostgreSQL, migrations, CI.
-- [x] Source registry and RSS/Atom parser.
-- [x] Operator-triggered RSS/Atom ingestion and ingestion-run tracking.
-- [x] Persist feed entries with source URL and content-hash deduplication.
-- [x] Article fetcher connector (bounded redirects, timeout, HTTP(S), content-type validation).
-- [x] Readability article extraction connector (this branch; awaiting CI and merge).
+- [x] Foundation: workspace, PWA, API, PostgreSQL, migrations, CI.
+- [x] Source registry and RSS/Atom parsing/ingestion with run tracking.
+- [x] Document processing: secure fetch, extraction, normalized content, retryable lifecycle.
+- [x] SSRF hardening with DNS validation/pinning and redirect revalidation.
+- [x] Deterministic Signal Engine v1; signals retain source document and evidence excerpt.
+- [x] Entity & Relationship Layer v1; organization mentions and explicit relationships retain evidence and pending-review status.
+- [x] Hypothesis Engine v1: recurring signal-category clusters, minimum two distinct documents, draft hypotheses with assumptions, mechanism, falsification criteria, confidence ceiling, and evidence links.
 
-### In progress / remaining
-- [ ] Fix CI regression introduced by PR #4.
-- [ ] Add streaming article response-size enforcement.
-- [ ] Wire fetch + extraction into document ingestion.
-- [ ] Persist extracted text, extractor version, language, and processing errors.
-- [ ] Make document processing status and retry behavior reliable.
-- [ ] Manual URL/document ingestion.
-- [ ] Scheduled RSS/Atom collection.
+### Current implementation limitations
+- Signal and entity extraction are deterministic heuristics; false positives are expected and require review.
+- Hypothesis generation groups by signal category, not yet by resolved entities, geography, customer segments, or specific market problems.
+- Hypotheses are generic candidate patterns, not validated business cases.
+- Manual URL/document ingestion, scheduled collection, context retrieval, AI Runtime, validation, opportunity economics, and ranking remain future work.
 
-### Later milestones
+### Next milestones
 | Milestone | Deliverable | Exit evidence |
 |---|---|---|
-| AI Runtime | Provider-neutral structured generation | Validated output from adapter test |
-| Signal Engine | Evidence-linked candidate signals | Signal links to source document |
-| Context Layer | Versioned context and relationships | Retrieval/update integration test |
-| Hypothesis Engine | Falsifiable hypotheses | Evidence, assumptions, falsification criteria present |
-| Opportunity Engine | Structured business cases | Value-capture mechanism and economics captured |
+| Context Layer | Generic versioned context and retrieval | Context retrieval/update tests |
+| Hypothesis Engine v2 | Entity/market-aware, evidence-specific hypotheses | Specific, falsifiable hypothesis with source trail |
+| Opportunity Engine | Structured business case and value capture | Opportunity includes target, mechanism, economics, risks, unknowns |
 | Validation | Research tasks and evidence updates | Unknowns marked supported/contradicted/unresolved |
 | Ranking | Explainable deterministic scores | Reproducible score breakdown |
 | Research Loop | Bounded orchestration | Stops at budget/iteration limit |

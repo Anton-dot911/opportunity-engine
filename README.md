@@ -28,6 +28,9 @@ pnpm dev
 - `GET /api/sources` — list registered sources (maximum 100).
 - `POST /api/sources/:id/ingest` — manually collect a registered RSS/Atom source and persist new feed entries.
 - `POST /api/sources` — create a source. JSON body: `{ "name": "Example feed", "type": "rss", "locator": "https://example.com/feed.xml" }`.
+- `POST /api/signals/extract` — extract deterministic candidate signals from processed documents.
+- `POST /api/entities/extract` — extract organization mentions and evidence-backed relationships.
+- `POST /api/hypotheses/generate` — generate draft hypotheses from recurring signal categories (requires signals from at least two distinct documents per category).
 
 Source types: `url`, `rss`, `atom`, `upload`, `api`.
 

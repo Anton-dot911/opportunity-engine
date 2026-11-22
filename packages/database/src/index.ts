@@ -7,3 +7,5 @@ export type { SignalSourceDocument, ExtractedSignal } from './repositories/signa
 export type { PendingDocument } from './repositories/document-processing-repository.js';
 export type { SourceRecord, SourceType } from './repositories/source-repository.js';
 export { EntityRepository } from './repositories/entity-repository.js';
+
+export { HypothesisRepository } from './repositories/hypothesis-repository.js';
