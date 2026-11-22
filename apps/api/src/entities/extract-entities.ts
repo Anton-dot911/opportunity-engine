@@ -21,13 +21,13 @@ const ORG_SUFFIX = '(?:LLC|L\\.?L\\.?C\\.?|Inc\\.?|Incorporated|Ltd\\.?|Limited|
 const ORG_PATTERN = new RegExp('\\b([\\p{L}\\p{N}][\\p{L}\\p{N}&.,’\\'-]*(?:\\s+[\\p{L}\\p{N}][\\p{L}\\p{N}&.,’\\'-]*){0,5}\\s+' + ORG_SUFFIX + ')\\b', 'giu');
 
 function normalize(value: string): string {
-  return value.toLocaleLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();
+  return value.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 }
 function hash(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 function splitSentences(value: string): string[] {
-  return value.replace(/\\s+/g, ' ').split(/(?<=[.!?])\\s+/).map(s => s.trim()).filter(s => s.length >= 25 && s.length <= 1000);
+  return value.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length >= 25 && s.length <= 1000);
 }
 
 export function extractEntities(document: { id: string; content: string }): EntityExtraction {
@@ -44,9 +44,9 @@ export function extractEntities(document: { id: string; content: string }): Enti
     }
     if (local.length < 2) continue;
     const relationRules: Array<{ pattern: RegExp; predicate: RelationshipCandidate['predicate'] }> = [
-      { pattern: /\\b(?:acquired|bought|purchased)\\b|придбал[аио]?|купил[аио]?/iu, predicate: 'acquired' },
-      { pattern: /\\bpartnered with\\b|\\bpartnership with\\b|уклал[аио]? партнерств[оа] з|співпрацює з/iu, predicate: 'partnered_with' },
-      { pattern: /\\b(?:launched|introduced)\\b|запустил[аио]?|представил[аио]?/iu, predicate: 'launched' },
+      { pattern: /\b(?:acquired|bought|purchased)\b|придбал[аио]?|купил[аио]?/iu, predicate: 'acquired' },
+      { pattern: /\bpartnered with\b|\bpartnership with\b|уклал[аио]? партнерств[оа] з|співпрацює з/iu, predicate: 'partnered_with' },
+      { pattern: /\b(?:launched|introduced)\b|запустил[аио]?|представил[аио]?/iu, predicate: 'launched' },
     ];
     for (const rule of relationRules) {
       if (!rule.pattern.test(sentence)) continue;
