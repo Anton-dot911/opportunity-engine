@@ -1,5 +1,8 @@
 import { pool } from '../pool.js';
-import type { EntityExtraction } from '../../../apps/api/src/entities/extract-entities.js';
+type EntityExtraction = {
+  entities: Array<{ name: string; normalizedName: string; evidenceExcerpt: string; confidence: number; dedupKey: string }>;
+  relationships: Array<{ subjectName: string; objectName: string; predicate: 'acquired' | 'partnered_with' | 'launched'; evidenceExcerpt: string; confidence: number; dedupKey: string }>;
+};
 
 export type EntitySourceDocument = { id: string; content: string };
 
