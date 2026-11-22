@@ -23,7 +23,7 @@ function buildCandidate(category: string, rows: SignalRow[]): Candidate | null {
   if (documents.size < 2) return null;
   const label = LABELS[category] ?? category.replace(/_/g, ' ');
   const signalIds = [...new Set(rows.map(row => row.id))];
-  const key = createHash('sha256').update('hypothesis-v1|' + category).digest('hex();
+  const key = createHash('sha256').update('hypothesis-v1|' + category).digest('hex');
   const avg = rows.reduce((sum, row) => sum + (row.confidence === null ? 0.5 : Number(row.confidence)), 0) / rows.length;
   const confidence = Math.min(0.55, Math.max(0.2, avg * 0.65));
   return {
