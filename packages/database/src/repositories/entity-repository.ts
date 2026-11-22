@@ -60,7 +60,7 @@ export class EntityRepository {
       mentionsCreated += mention.rowCount ?? 0;
     }
     for (const relation of extraction.relationships) {
-      const subjectId = ids.get(relation.subjectName.toLocaleLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim());
+      const subjectId = ids.get(relation.subjectName.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim());
       const objectId = ids.get(relation.objectName.toLocaleLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim());
       if (!subjectId || !objectId) continue;
       const inserted = await pool.query(
