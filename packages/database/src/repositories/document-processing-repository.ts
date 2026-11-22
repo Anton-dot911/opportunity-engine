@@ -16,8 +16,8 @@ export class DocumentProcessingRepository {
          WHERE processing_status IN ('pending', 'failed')
            AND canonical_url IS NOT NULL
          ORDER BY collected_at ASC
-         FOR UPDATE SKIP LOCKED
          LIMIT $1
+         FOR UPDATE SKIP LOCKED
        )
        UPDATE documents d
        SET processing_status = 'processing',
@@ -45,7 +45,7 @@ export class DocumentProcessingRepository {
       `UPDATE documents
        SET canonical_url = $2, title = $3, content = $4, content_hash = $5,
            language = $6, metadata = metadata || $7::jsonb,
-           processing_status = 'processed', processing_completed_at = now(),
+           processing_status = 'processed', processing_started_at = NULL, processing_completed_at = now(),
            processing_error = NULL
        WHERE id = $1`,
       [input.id, input.canonicalUrl, input.title, input.content, input.contentHash, input.language, JSON.stringify(input.metadata)],
