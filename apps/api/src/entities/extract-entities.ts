@@ -17,7 +17,7 @@ export type RelationshipCandidate = {
 };
 export type EntityExtraction = { entities: EntityCandidate[]; relationships: RelationshipCandidate[] };
 
-const ORG_PATTERN = /(?<![\p{L}\p{N}])([\p{L}\p{N}][\p{L}\p{N}&.,’'-]*(?:\s+[\p{L}\p{N}][\p{L}\p{N}&.,’'-]*){0,5}\s+(?:LLC|L\.?L\.?C\.?|Inc\.?|Incorporated|Ltd\.?|Limited|GmbH|AG|PLC|Corp\.?|Corporation|ТОВ|ПП|АТ|ПрАТ|ФОП))(?![\p{L}\p{N}])/giu;
+const ORG_PATTERN = /(?<![\p{L}\p{N}])([\p{L}\p{N}][\p{L}\p{N}&.,’'-]*(?:\s+[\p{L}\p{N}][\p{L}\p{N}&.,’'-]*){0,5}?\s+(?:LLC|L\.?L\.?C\.?|Inc\.?|Incorporated|Ltd\.?|Limited|GmbH|AG|PLC|Corp\.?|Corporation|ТОВ|ПП|АТ|ПрАТ|ФОП))(?![\p{L}\p{N}])/giu;
 
 function normalize(value: string): string {
   return value.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
