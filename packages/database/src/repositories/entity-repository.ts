@@ -1,7 +1,7 @@
 import { pool } from '../pool.js';
 type EntityExtraction = {
   entities: Array<{ name: string; normalizedName: string; evidenceExcerpt: string; confidence: number; dedupKey: string }>;
-  relationships: Array<{ subjectName: string; objectName: string; predicate: 'acquired' | 'partnered_with' | 'launched'; evidenceExcerpt: string; confidence: number; dedupKey: string }>;
+  relationships: Array<{ subjectName: string; objectName: string; predicate: 'acquired' | 'partnered_with'; evidenceExcerpt: string; confidence: number; dedupKey: string }>;
 };
 
 export type EntitySourceDocument = { id: string; content: string };
@@ -12,7 +12,7 @@ export class EntityRepository {
       `WITH claimed AS (
          SELECT id FROM documents
          WHERE processing_status = 'processed'
-           AND entity_processing_status IN ('pending', 'failed')
+           AND (entity_processing_status IN ('pending', 'failed') OR (entity_processing_status = 'processing' AND entity_processing_started_at < now() - interval '15 minutes'))
            AND content IS NOT NULL AND length(trim(content)) > 0
          ORDER BY processing_completed_at ASC NULLS FIRST
          LIMIT $1
