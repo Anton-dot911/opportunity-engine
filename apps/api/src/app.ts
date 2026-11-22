@@ -40,5 +40,6 @@ export function buildApp() {
   registerEntityRoutes(app);
   registerHypothesisRoutes(app);
   registerContextRoutes(app);
+  registerContextPackageRoutes(app);
   return app;
 }
