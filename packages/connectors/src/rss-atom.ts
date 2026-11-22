@@ -1,5 +1,4 @@
-import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
+import { resolveAndValidate, secureHttpGet } from './secure-http.js';
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 
 export type FeedItem = {
@@ -12,7 +11,6 @@ export type FeedItem = {
 
 const MAX_FEED_BYTES = 1_000_000;
 const MAX_ITEMS = 50;
-const FETCH_TIMEOUT_MS = 8_000;
 const MAX_REDIRECTS = 3;
 
 const parser = new XMLParser({
@@ -22,53 +20,6 @@ const parser = new XMLParser({
   trimValues: true,
   processEntities: false,
 });
-
-function isPrivateAddress(address: string): boolean {
-  if (isIP(address) === 4) {
-    const parts = address.split('.').map(Number);
-    const a = parts[0] ?? 0;
-    const b = parts[1] ?? 0;
-    return (
-      a === 0 || a === 10 || a === 127 || a >= 224 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && (b === 0 || b === 2 || b === 168)) ||
-      (a === 192 && b === 88 && parts[2] === 99) ||
-      (a === 198 && (b === 18 || b === 19 || b === 51)) ||
-      (a === 203 && b === 0 && parts[2] === 113)
-    );
-  }
-  if (isIP(address) === 6) {
-    const normalized = address.toLowerCase();
-    const firstGroup = Number.parseInt(normalized.split(':')[0] || '0', 16);
-    return firstGroup < 0x2000 || firstGroup > 0x3fff || normalized.startsWith('2001:db8:');
-  }
-  return true;
-}
-
-async function assertPublicHttpUrl(value: string): Promise<URL> {
-  let url: URL;
-  try {
-    url = new URL(value);
-  } catch {
-    throw new Error('FEED_URL_INVALID');
-  }
-  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
-    throw new Error('FEED_URL_UNSUPPORTED');
-  }
-  const hostname = url.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
-  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.local')) {
-    throw new Error('FEED_HOST_BLOCKED');
-  }
-  const addresses = isIP(hostname)
-    ? [{ address: hostname }]
-    : await lookup(hostname, { all: true, verbatim: true });
-  if (addresses.length === 0 || addresses.some(({ address }) => isPrivateAddress(address))) {
-    throw new Error('FEED_HOST_BLOCKED');
-  }
-  return url;
-}
 
 function asText(value: unknown): string | null {
   if (typeof value === 'string' || typeof value === 'number') return String(value).trim() || null;
@@ -158,18 +109,47 @@ export async function fetchFeed(
   let response: Response | undefined;
 
   for (let redirect = 0; redirect <= MAX_REDIRECTS; redirect += 1) {
-    const safeUrl = await assertPublicHttpUrl(currentUrl);
-    response = await fetchImpl(safeUrl, {
-      method: 'GET',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: {
-        accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9',
-        'user-agent': 'OpportunityEngine/0.1 (+RSS feed reader)',
-      },
-    });
+    let safeUrl: URL;
+    try {
+      safeUrl = new URL(currentUrl);
+    } catch {
+      throw new Error('FEED_URL_INVALID');
+    }
+    if (!['http:', 'https:'].includes(safeUrl.protocol) || safeUrl.username || safeUrl.password) {
+      throw new Error('FEED_URL_UNSUPPORTED');
+    }
+    if (fetchImpl !== fetch) {
+      try {
+        await resolveAndValidate(safeUrl.hostname);
+      } catch {
+        throw new Error('FEED_HOST_BLOCKED');
+      }
+    }
+    try {
+      response = fetchImpl !== fetch
+      ? await fetchImpl(safeUrl, {
+          method: 'GET',
+          redirect: 'manual',
+          signal: AbortSignal.timeout(8_000),
+          headers: {
+            accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9',
+            'user-agent': 'OpportunityEngine/0.1 (+RSS feed reader)',
+          },
+        })
+      : await secureHttpGet(safeUrl, {
+          timeoutMs: 8_000,
+          maxBytes: MAX_FEED_BYTES,
+          headers: { accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9' },
+        });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/private|reserved|invalid IP|did not resolve/i.test(message)) throw new Error('FEED_HOST_BLOCKED');
+      throw error;
+    }
+
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers.get('location');
+      await response.body?.cancel();
       if (!location || redirect === MAX_REDIRECTS) throw new Error('FEED_REDIRECT_LIMIT');
       currentUrl = new URL(location, safeUrl).toString();
       continue;
@@ -180,23 +160,31 @@ export async function fetchFeed(
   if (!response?.ok) throw new Error(`FEED_HTTP_ERROR_${response?.status ?? 'UNKNOWN'}`);
   const contentType = response.headers.get('content-type')?.toLowerCase() ?? '';
   if (contentType && !/(xml|rss|atom|text\/plain)/.test(contentType)) {
+    await response.body?.cancel();
     throw new Error('FEED_CONTENT_TYPE_UNSUPPORTED');
   }
   const declaredLength = Number(response.headers.get('content-length') ?? 0);
-  if (declaredLength > MAX_FEED_BYTES) throw new Error('FEED_TOO_LARGE');
+  if (declaredLength > MAX_FEED_BYTES) {
+    await response.body?.cancel();
+    throw new Error('FEED_TOO_LARGE');
+  }
   if (!response.body) throw new Error('FEED_BODY_EMPTY');
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let totalBytes = 0;
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    totalBytes += value.byteLength;
-    if (totalBytes > MAX_FEED_BYTES) {
-      await reader.cancel();
-      throw new Error('FEED_TOO_LARGE');
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_FEED_BYTES) {
+        await reader.cancel();
+        throw new Error('FEED_TOO_LARGE');
+      }
+      chunks.push(value);
     }
-    chunks.push(value);
+  } finally {
+    reader.releaseLock();
   }
   const bytes = new Uint8Array(totalBytes);
   let offset = 0;
