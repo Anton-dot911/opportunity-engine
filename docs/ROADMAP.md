@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-## Current milestone: Context Packages v1
+## Current milestone: Hypothesis Engine v2
 
 ### Completed
 - [x] Foundation: workspace, PWA, API, PostgreSQL, migrations, CI.
@@ -11,19 +11,21 @@
 - [x] Entity & Relationship Layer v1; organization mentions and explicit relationships retain evidence and pending-review status.
 - [x] Hypothesis Engine v1: recurring signal-category clusters, minimum two distinct documents, draft hypotheses with assumptions, mechanism, falsification criteria, confidence ceiling, and evidence links.
 - [x] Context Layer v1: generic context items with provenance, priority, confidence, lifecycle, validity, tags, retrieval, and operator review API.
-- [ ] Context Packages v1: dynamic, task-specific selection of active context items with immutable snapshots and retrieval API.
+- [x] Context Packages v1: dynamic, task-specific selection of active context items with immutable snapshots and retrieval API.
+- [x] Hypothesis Engine v2 foundation: group signals by organization and category; require two distinct documents; persist hypothesis-to-entity links and linked signal evidence.
 
 ### Current implementation limitations
 - Signal and entity extraction are deterministic heuristics; false positives are expected and require review.
-- Hypothesis generation groups by signal category, not yet by resolved entities, geography, customer segments, or specific market problems.
+- Entity extraction remains heuristic; entity mentions are not yet globally resolved or guaranteed to identify the same real-world organization.
+- Entity-aware hypotheses associate recurring signals with an organization, but do not establish causation, customer demand, or a validated business opportunity.
 - Hypotheses are generic candidate patterns, not validated business cases.
 - Manual URL/document ingestion, scheduled collection, context retrieval, AI Runtime, validation, opportunity economics, and ranking remain future work.
 
 ### Next milestones
 | Milestone | Deliverable | Exit evidence |
 |---|---|---|
-| Context Packages | Dynamic task-specific context selection and immutable snapshots | Package selection, filtering, persistence, and retrieval tests |
-| Hypothesis Engine v2 | Entity/market-aware, evidence-specific hypotheses | Specific, falsifiable hypothesis with source trail |
+| Hypothesis Engine v2 completion | Contradiction handling, richer evidence roles, and context-package consumption | Hypotheses expose supporting/contradicting evidence and reproducible context snapshot |
+| Opportunity Engine | Structured business case and value capture | Opportunity includes target, mechanism, economics, risks, unknowns |
 | Opportunity Engine | Structured business case and value capture | Opportunity includes target, mechanism, economics, risks, unknowns |
 | Validation | Research tasks and evidence updates | Unknowns marked supported/contradicted/unresolved |
 | Ranking | Explainable deterministic scores | Reproducible score breakdown |
