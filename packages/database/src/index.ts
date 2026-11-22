@@ -9,3 +9,5 @@ export type { SourceRecord, SourceType } from './repositories/source-repository.
 export { EntityRepository } from './repositories/entity-repository.js';
 
 export { HypothesisRepository } from './repositories/hypothesis-repository.js';
+export { ContextRepository } from './repositories/context-repository.js';
+export type { ContextItemInput } from './repositories/context-repository.js';
