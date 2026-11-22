@@ -16,7 +16,7 @@ const RULES: Rule[] = [
 ];
 
 function sentences(text: string): string[] {
-  return text.replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).map(s => s.trim()).filter(s => s.length >= 35 && s.length <= 700);
+  return text.replace(/\\s+/g, ' ').split(/(?<=[.!?])\\s+/).map(s => s.trim()).filter(s => s.length >= 35 && s.length <= 700);
 }
 
 export function extractSignals(document: SignalSourceDocument): ExtractedSignal[] {
@@ -24,9 +24,10 @@ export function extractSignals(document: SignalSourceDocument): ExtractedSignal[
   const signals: ExtractedSignal[] = [];
   for (const rule of RULES) {
     const matching = parts.filter(sentence => rule.keywords.test(sentence));
-    if (!matching.length) continue;
-    const summary = matching[0].slice(0, 500);
-    const normalized = summary.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+    const firstMatch = matching[0];
+    if (!firstMatch) continue;
+    const summary = firstMatch.slice(0, 500);
+    const normalized = summary.toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();
     const dedupKey = createHash('sha256').update(document.id + '|' + rule.type + '|' + normalized).digest('hex');
     signals.push({ signalType: rule.type, summary, observedAt: document.published_at, confidence: rule.confidence, dedupKey, extractionMethod: 'rule-based-v1' });
   }
