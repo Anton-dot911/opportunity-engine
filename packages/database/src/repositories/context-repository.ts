@@ -6,12 +6,12 @@ export type ContextItemInput = {
   title: string;
   content: unknown;
   provenance?: unknown;
-  priority?: number;
-  confidence?: number;
-  status?: 'draft' | 'review' | 'active' | 'rejected' | 'expired';
-  tags?: string[];
-  validFrom?: string | null;
-  validUntil?: string | null;
+  priority?: number | undefined;
+  confidence?: number | undefined;
+  status?: 'draft' | 'review' | 'active' | 'rejected' | 'expired' | undefined;
+  tags?: string[] | undefined;
+  validFrom?: string | null | undefined;
+  validUntil?: string | null | undefined;
 };
 
 export class ContextRepository {
@@ -30,7 +30,7 @@ export class ContextRepository {
     return result.rows[0];
   }
 
-  async list(options: { status?: string; itemType?: string; tags?: string[]; limit?: number } = {}) {
+  async list(options: { status?: string | undefined; itemType?: string | undefined; tags?: string[] | undefined; limit?: number } = {}) {
     const result = await pool.query(
       `SELECT * FROM context_items
        WHERE ($1::text IS NULL OR status = $1)
