@@ -6,3 +6,4 @@ export { SignalRepository } from './repositories/signal-repository.js';
 export type { SignalSourceDocument, ExtractedSignal } from './repositories/signal-repository.js';
 export type { PendingDocument } from './repositories/document-processing-repository.js';
 export type { SourceRecord, SourceType } from './repositories/source-repository.js';
+export { EntityRepository } from './repositories/entity-repository.js';
