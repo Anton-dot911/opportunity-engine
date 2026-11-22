@@ -11,3 +11,5 @@ export { EntityRepository } from './repositories/entity-repository.js';
 export { HypothesisRepository } from './repositories/hypothesis-repository.js';
 export { ContextRepository } from './repositories/context-repository.js';
 export type { ContextItemInput } from './repositories/context-repository.js';
+export { ContextPackageRepository } from './repositories/context-package-repository.js';
+export type { ContextPackageInput } from './repositories/context-package-repository.js';

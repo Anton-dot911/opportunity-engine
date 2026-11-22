@@ -113,7 +113,9 @@ Implementation exists; types and runtime validation are present; relevant tests 
 - Signal Engine v1: deterministic candidate signals with source-document linkage and review state are implemented.
 - Entity & Relationship Layer v1: deterministic organization mentions and explicit relationships with evidence provenance are implemented.
 - Hypothesis Engine v1: recurring signal categories across at least two distinct documents produce draft hypotheses with mechanism, assumptions, falsification criteria, heuristic confidence, and linked signals. This does not validate a market opportunity.
-- AI Runtime, Context Layer, Opportunity Engine, Validation, Ranking, Research Loop, and Experiments remain future milestones.
+- Context Layer v1 foundation is implemented: generic context items, provenance, priority/confidence, lifecycle, validity, tags, and review API.
+- Context Packages v1 is in progress: dynamic task-specific selection and immutable snapshots.
+- AI Runtime, Opportunity Engine, Validation, Ranking, Research Loop, and Experiments remain future milestones.
 
 ## 13. Next implementation step
 
