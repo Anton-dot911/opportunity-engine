@@ -10,7 +10,7 @@ export type EntityCandidate = {
 export type RelationshipCandidate = {
   subjectName: string;
   objectName: string;
-  predicate: 'acquired' | 'partnered_with' | 'launched';
+  predicate: 'acquired' | 'partnered_with';
   evidenceExcerpt: string;
   confidence: number;
   dedupKey: string;
@@ -45,7 +45,6 @@ export function extractEntities(document: { id: string; content: string }): Enti
     const relationRules: Array<{ pattern: RegExp; predicate: RelationshipCandidate['predicate'] }> = [
       { pattern: /\b(?:acquired|bought|purchased)\b|придбал[аио]?|купил[аио]?/iu, predicate: 'acquired' },
       { pattern: /\bpartnered with\b|\bpartnership with\b|уклал[аио]? партнерств[оа] з|співпрацює з/iu, predicate: 'partnered_with' },
-      { pattern: /\b(?:launched|introduced)\b|запустил[аио]?|представил[аио]?/iu, predicate: 'launched' },
     ];
     for (const rule of relationRules) {
       if (!rule.pattern.test(sentence)) continue;
