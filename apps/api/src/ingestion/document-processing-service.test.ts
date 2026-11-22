@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DocumentProcessingService } from './document-processing-service.js';
 
-const fetchArticleHtml = vi.fn();
-const extractArticle = vi.fn();
+const { fetchArticleHtml, extractArticle } = vi.hoisted(() => ({ fetchArticleHtml: vi.fn(), extractArticle: vi.fn() }));
 vi.mock('@oe/connectors', () => ({ fetchArticleHtml, extractArticle }));
 
 describe('DocumentProcessingService', () => {
