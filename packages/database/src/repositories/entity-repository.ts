@@ -61,7 +61,7 @@ export class EntityRepository {
     }
     for (const relation of extraction.relationships) {
       const subjectId = ids.get(relation.subjectName.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim());
-      const objectId = ids.get(relation.objectName.toLocaleLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim());
+      const objectId = ids.get(relation.objectName.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim());
       if (!subjectId || !objectId) continue;
       const inserted = await pool.query(
         `INSERT INTO entity_relationships (subject_entity_id, predicate, object_entity_id, document_id, evidence_excerpt, confidence, extraction_method, dedup_key)
