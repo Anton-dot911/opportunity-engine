@@ -8,6 +8,7 @@ import { registerDocumentProcessingRoutes } from './ingestion/document-processin
 import { registerSignalRoutes } from './signals/signal-routes.js';
 import { registerEntityRoutes } from './entities/entity-routes.js';
 import { registerHypothesisRoutes } from './hypotheses/hypothesis-routes.js';
+import { registerContextRoutes } from './context/context-routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -37,5 +38,6 @@ export function buildApp() {
   registerSignalRoutes(app);
   registerEntityRoutes(app);
   registerHypothesisRoutes(app);
+  registerContextRoutes(app);
   return app;
 }
