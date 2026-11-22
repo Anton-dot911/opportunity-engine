@@ -7,7 +7,7 @@ describe('context package routes', () => {
     const app = Fastify();
     let received: unknown;
     registerContextPackageRoutes(app, {
-      build: async (input) => { received = input; return { id: 'snapshot', item_count: 2, items: [] }; },
+      build: async (input: import('@oe/database').ContextPackageInput) => { received = input; return { id: 'snapshot', item_count: 2, items: [] }; },
       getById: async () => null,
     } as never);
     const response = await app.inject({ method: 'POST', url: '/api/context/packages', payload: { agent: 'researcher', task: 'Assess demand', tags: ['market'], limit: 10 } });
