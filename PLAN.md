@@ -112,11 +112,11 @@ Implementation exists; types and runtime validation are present; relevant tests 
 - Document Pipeline: secure article fetch, Readability extraction, normalization, metadata and retryable processing are implemented.
 - Signal Engine v1: deterministic candidate signals with source-document linkage and review state are implemented.
 - Entity & Relationship Layer v1: deterministic organization mentions and explicit relationships with evidence provenance are implemented.
-- Hypothesis Engine v1: recurring signal categories across at least two distinct documents produce draft hypotheses with mechanism, assumptions, falsification criteria, heuristic confidence, and linked signals. This does not validate a market opportunity.
+- Hypothesis Engine v1/v2: v1 generated category-level drafts; v2 groups signals by mentioned organization and signal category, requires at least two distinct source documents per entity/category, links hypotheses to entities and evidence, and explicitly frames entity association as a research lead rather than proof. This does not validate a market opportunity.
 - Context Layer v1 foundation is implemented: generic context items, provenance, priority/confidence, lifecycle, validity, tags, and review API.
-- Context Packages v1 is in progress: dynamic task-specific selection and immutable snapshots.
+- Context Packages v1 is implemented: dynamic task-specific selection of active, valid context items and immutable snapshots with retrieval API.
 - AI Runtime, Opportunity Engine, Validation, Ranking, Research Loop, and Experiments remain future milestones.
 
 ## 13. Next implementation step
 
-Build the generic Context Layer with versioned context items, provenance, lifecycle/review states, and retrieval. Keep it domain-agnostic and avoid adding a vector database until retrieval requirements justify it.
+Complete the Hypothesis Engine v2 validation path, then build the Opportunity Engine to transform reviewed hypotheses into structured business cases. Context-package consumption by downstream agents remains a follow-up integration task. Keep context infrastructure domain-agnostic and avoid adding a vector database until retrieval requirements justify it.
