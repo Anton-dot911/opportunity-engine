@@ -21,14 +21,14 @@ export function registerContextRoutes(app: FastifyInstance, repository = new Con
   app.post('/api/context/items', async (request, reply) => {
     const parsed = createSchema.safeParse(request.body);
     if (!parsed.success) return reply.code(400).send({ error: 'VALIDATION_ERROR', details: parsed.error.issues });
-    try { return reply.code(201).send(await repository.create(parsed.data)); }
+    try { return reply.code(201).send(await repository.create(parsed.data as import('@oe/database').ContextItemInput)); }
     catch (error) { app.log.error(error); return reply.code(503).send({ error: 'CONTEXT_STORAGE_UNAVAILABLE' }); }
   });
   app.get('/api/context/items', async (request, reply) => {
     const querySchema = z.object({ status: statusSchema.shape.status.optional(), type: z.string().max(80).optional(), tag: z.string().max(64).optional(), limit: z.coerce.number().int().min(1).max(200).optional() });
     const parsed = querySchema.safeParse(request.query);
     if (!parsed.success) return reply.code(400).send({ error: 'VALIDATION_ERROR', details: parsed.error.issues });
-    try { return await repository.list({ status: parsed.data.status, itemType: parsed.data.type, tags: parsed.data.tag ? [parsed.data.tag] : undefined, limit: parsed.data.limit }); }
+    try { return await repository.list({ ...(parsed.data.status ? { status: parsed.data.status } : {}), ...(parsed.data.type ? { itemType: parsed.data.type } : {}), ...(parsed.data.tag ? { tags: [parsed.data.tag] } : {}), ...(parsed.data.limit !== undefined ? { limit: parsed.data.limit } : {}) }); }
     catch (error) { app.log.error(error); return reply.code(503).send({ error: 'CONTEXT_RETRIEVAL_UNAVAILABLE' }); }
   });
   app.patch('/api/context/items/:id/status', async (request, reply) => {
