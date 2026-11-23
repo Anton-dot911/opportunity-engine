@@ -1,6 +1,6 @@
 # Implementation Roadmap
 
-## Current milestone: Hypothesis Engine v2
+## Current milestone: Opportunity Engine v1
 
 ### Completed
 - [x] Foundation: workspace, PWA, API, PostgreSQL, migrations, CI.
@@ -19,13 +19,14 @@
 - Entity extraction remains heuristic; entity mentions are not yet globally resolved or guaranteed to identify the same real-world organization.
 - Entity-aware hypotheses associate recurring signals with an organization, but do not establish causation, customer demand, or a validated business opportunity.
 - Hypotheses are generic candidate patterns, not validated business cases.
+- Opportunity Engine v1 is deterministic; the initial mechanism gate is heuristic and intentionally conservative. Economics are unknown/null until supported by evidence.
 - Manual URL/document ingestion, scheduled collection, context retrieval, AI Runtime, validation, opportunity economics, and ranking remain future work.
 
 ### Next milestones
 | Milestone | Deliverable | Exit evidence |
 |---|---|---|
 | Hypothesis Engine v2 completion | Contradiction handling, richer evidence roles, and context-package consumption | Hypotheses expose supporting/contradicting evidence and reproducible context snapshot |
-| Opportunity Engine | Structured business case and value capture | Opportunity includes target, mechanism, economics, risks, unknowns |
+| Opportunity Engine v1 | Structured opportunity records with conservative economic-mechanism gate | API creates records only for hypotheses with an explicit mechanism; otherwise leaves them research-only |
 | Opportunity Engine | Structured business case and value capture | Opportunity includes target, mechanism, economics, risks, unknowns |
 | Validation | Research tasks and evidence updates | Unknowns marked supported/contradicted/unresolved |
 | Ranking | Explainable deterministic scores | Reproducible score breakdown |
