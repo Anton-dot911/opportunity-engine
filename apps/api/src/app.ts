@@ -11,6 +11,7 @@ import { registerHypothesisRoutes } from './hypotheses/hypothesis-routes.js';
 import { registerContextRoutes } from './context/context-routes.js';
 import { registerContextPackageRoutes } from './context/context-package-routes.js';
 import { registerOpportunityRoutes } from './opportunities/opportunity-routes.js';
+import { registerOpportunityValidationRoutes } from './opportunities/opportunity-validation-routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -43,5 +44,6 @@ export function buildApp() {
   registerContextRoutes(app);
   registerContextPackageRoutes(app);
   registerOpportunityRoutes(app);
+  registerOpportunityValidationRoutes(app);
   return app;
 }
