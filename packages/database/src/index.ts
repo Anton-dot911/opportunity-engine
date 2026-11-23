@@ -15,3 +15,6 @@ export { ContextPackageRepository } from './repositories/context-package-reposit
 export type { ContextPackageInput } from './repositories/context-package-repository.js';
 
 export { OpportunityRepository } from './repositories/opportunity-repository.js';
+
+export { OpportunityValidationRepository } from './repositories/opportunity-validation-repository.js';
+export type { ValidationInput, ValidationUpdate } from './repositories/opportunity-validation-repository.js';
