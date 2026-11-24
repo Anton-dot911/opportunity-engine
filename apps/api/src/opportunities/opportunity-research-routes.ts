@@ -24,7 +24,7 @@ export function registerOpportunityResearchRoutes(app:FastifyInstance,repository
  app.patch('/api/research/:id',async(request,reply)=>{
   const id=idSchema.safeParse((request.params as {id:string}).id),body=updateSchema.safeParse(request.body);
   if(!id.success||!body.success)return reply.code(400).send({error:'VALIDATION_ERROR'});
-  try{const row=await repository.update(id.data,body.data);if(!row)return reply.code(404).send({error:'RESEARCH_NOT_FOUND'});return row}
+  try{const row=await repository.update(id.data,{status:body.data.status,questions:body.data.questions,findings:body.data.findings,evidence:body.data.evidence,unknowns:body.data.unknowns,conclusion:body.data.conclusion});if(!row)return reply.code(404).send({error:'RESEARCH_NOT_FOUND'});return row}
   catch(error){app.log.error(error);return reply.code(503).send({error:'RESEARCH_UPDATE_UNAVAILABLE'})}
  });
 }
