@@ -20,3 +20,6 @@ export { OpportunityValidationRepository } from './repositories/opportunity-vali
 export type { ValidationInput, ValidationUpdate } from './repositories/opportunity-validation-repository.js';
 
 export { OpportunityResearchRepository } from './repositories/opportunity-research-repository.js';
+
+export { OpportunityScoringRepository, calculateOpportunityScore, SCORE_DIMENSIONS } from './repositories/opportunity-scoring-repository.js';
+export type { ScoreInput, ScoreDimension } from './repositories/opportunity-scoring-repository.js';
