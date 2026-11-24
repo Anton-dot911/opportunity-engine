@@ -18,3 +18,5 @@ export { OpportunityRepository } from './repositories/opportunity-repository.js'
 
 export { OpportunityValidationRepository } from './repositories/opportunity-validation-repository.js';
 export type { ValidationInput, ValidationUpdate } from './repositories/opportunity-validation-repository.js';
+
+export { OpportunityResearchRepository } from './repositories/opportunity-research-repository.js';
