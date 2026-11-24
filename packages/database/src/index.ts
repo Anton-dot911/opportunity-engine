@@ -23,3 +23,6 @@ export { OpportunityResearchRepository } from './repositories/opportunity-resear
 
 export { OpportunityScoringRepository, calculateOpportunityScore, SCORE_DIMENSIONS } from './repositories/opportunity-scoring-repository.js';
 export type { ScoreInput, ScoreDimension } from './repositories/opportunity-scoring-repository.js';
+
+export { OpportunityRankingRepository } from './repositories/opportunity-ranking-repository.js';
+export type { RankingOptions } from './repositories/opportunity-ranking-repository.js';
