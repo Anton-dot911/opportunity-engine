@@ -15,6 +15,7 @@ import { registerOpportunityValidationRoutes } from './opportunities/opportunity
 import { registerOpportunityResearchRoutes } from './opportunities/opportunity-research-routes.js';
 import { registerOpportunityScoringRoutes } from './opportunities/opportunity-scoring-routes.js';
 import { registerOpportunityRankingRoutes } from './opportunities/opportunity-ranking-routes.js';
+import { registerOpportunityFeedbackRoutes } from './opportunities/opportunity-feedback-routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -51,5 +52,6 @@ export function buildApp() {
   registerOpportunityResearchRoutes(app);
   registerOpportunityScoringRoutes(app);
   registerOpportunityRankingRoutes(app);
+  registerOpportunityFeedbackRoutes(app);
   return app;
 }
