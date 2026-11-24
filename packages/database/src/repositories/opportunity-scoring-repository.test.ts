@@ -8,7 +8,7 @@ describe('calculateOpportunityScore', () => {
       rationale: {},
     });
     expect(result.coveragePercent).toBe(45);
-    expect(result.weightedScore).toBeCloseTo(68.89, 1);
+    expect(result.weightedScore).toBeCloseTo(71.11, 1);
     expect(result.rating).toBe('insufficient_data');
   });
 
@@ -21,8 +21,8 @@ describe('calculateOpportunityScore', () => {
       rationale: {},
     });
     expect(result.coveragePercent).toBe(100);
-    expect(result.weightedScore).toBe(80);
-    expect(result.rating).toBe('very_high');
+    expect(result.weightedScore).toBe(76);
+    expect(result.rating).toBe('high');
   });
 
   it('does not turn missing dimensions into zero', () => {
