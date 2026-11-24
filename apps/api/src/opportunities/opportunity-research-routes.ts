@@ -24,7 +24,7 @@ export function registerOpportunityResearchRoutes(app:FastifyInstance,repository
  app.patch('/api/research/:id',async(request,reply)=>{
   const id=idSchema.safeParse((request.params as {id:string}).id),body=updateSchema.safeParse(request.body);
   if(!id.success||!body.success)return reply.code(400).send({error:'VALIDATION_ERROR'});
-  try{const row=await repository.update(id.data,{status:body.data.status,questions:body.data.questions,findings:body.data.findings,evidence:body.data.evidence,unknowns:body.data.unknowns,conclusion:body.data.conclusion});if(!row)return reply.code(404).send({error:'RESEARCH_NOT_FOUND'});return row}
+  try{const input={...(body.data.status!==undefined?{status:body.data.status}:{}),...(body.data.questions!==undefined?{questions:body.data.questions}:{}),...(body.data.findings!==undefined?{findings:body.data.findings}:{}),...(body.data.evidence!==undefined?{evidence:body.data.evidence}:{}),...(body.data.unknowns!==undefined?{unknowns:body.data.unknowns}:{}),...(body.data.conclusion!==undefined?{conclusion:body.data.conclusion}:{})};const row=await repository.update(id.data,input);if(!row)return reply.code(404).send({error:'RESEARCH_NOT_FOUND'});return row}
   catch(error){app.log.error(error);return reply.code(503).send({error:'RESEARCH_UPDATE_UNAVAILABLE'})}
  });
 }
