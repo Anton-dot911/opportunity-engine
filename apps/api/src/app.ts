@@ -12,6 +12,7 @@ import { registerContextRoutes } from './context/context-routes.js';
 import { registerContextPackageRoutes } from './context/context-package-routes.js';
 import { registerOpportunityRoutes } from './opportunities/opportunity-routes.js';
 import { registerOpportunityValidationRoutes } from './opportunities/opportunity-validation-routes.js';
+import { registerOpportunityResearchRoutes } from './opportunities/opportunity-research-routes.js';
 
 const createSourceSchema = z.object({
   name: z.string().trim().min(1).max(160),
@@ -45,5 +46,6 @@ export function buildApp() {
   registerContextPackageRoutes(app);
   registerOpportunityRoutes(app);
   registerOpportunityValidationRoutes(app);
+  registerOpportunityResearchRoutes(app);
   return app;
 }
