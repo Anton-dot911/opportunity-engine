@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import Fastify from 'fastify';
+import type { ValidationInput } from '@oe/database';
 import { registerOpportunityValidationRoutes } from './opportunity-validation-routes.js';
 
 describe('opportunity validation routes', () => {
@@ -19,7 +20,7 @@ describe('opportunity validation routes', () => {
     const app = Fastify();
     let input: unknown;
     registerOpportunityValidationRoutes(app, {
-      create: async (value) => { input = value; return { id: 'validation-id', ...value }; },
+      create: async (value: ValidationInput) => { input = value; return { id: 'validation-id', ...value }; },
       list: async () => [],
       update: async () => null,
     } as never);
