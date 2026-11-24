@@ -1,15 +1,38 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { OpportunityScoringRepository, SCORE_DIMENSIONS } from '@oe/database';
+import { OpportunityScoringRepository } from '@oe/database';
 
 const idSchema = z.string().uuid();
-const dimensionNames = Object.keys(SCORE_DIMENSIONS) as [keyof typeof SCORE_DIMENSIONS, ...(keyof typeof SCORE_DIMENSIONS)[]];
+const dimensionsSchema = z.object({
+  evidence_strength: z.number().min(0).max(5).nullable().optional(),
+  customer_demand: z.number().min(0).max(5).nullable().optional(),
+  market_potential: z.number().min(0).max(5).nullable().optional(),
+  economic_viability: z.number().min(0).max(5).nullable().optional(),
+  execution_feasibility: z.number().min(0).max(5).nullable().optional(),
+  defensibility: z.number().min(0).max(5).nullable().optional(),
+});
+const rationaleSchema = z.object({
+  evidence_strength: z.string().trim().min(1).max(2000).optional(),
+  customer_demand: z.string().trim().min(1).max(2000).optional(),
+  market_potential: z.string().trim().min(1).max(2000).optional(),
+  economic_viability: z.string().trim().min(1).max(2000).optional(),
+  execution_feasibility: z.string().trim().min(1).max(2000).optional(),
+  defensibility: z.string().trim().min(1).max(2000).optional(),
+});
+const evidenceRefsSchema = z.object({
+  evidence_strength: z.array(z.string().min(1).max(500)).max(50).optional(),
+  customer_demand: z.array(z.string().min(1).max(500)).max(50).optional(),
+  market_potential: z.array(z.string().min(1).max(500)).max(50).optional(),
+  economic_viability: z.array(z.string().min(1).max(500)).optional(),
+  execution_feasibility: z.array(z.string().min(1).max(500)).max(50).optional(),
+  defensibility: z.array(z.string().min(1).max(500)).max(50).optional(),
+});
 const scoreSchema = z.object({
-  dimensions: z.object(Object.fromEntries(dimensionNames.map((key) => [key, z.number().min(0).max(5).nullable().optional()]))),
-  rationale: z.object(Object.fromEntries(dimensionNames.map((key) => [key, z.string().trim().min(1).max(2000).optional()]))),
-  evidenceRefs: z.object(Object.fromEntries(dimensionNames.map((key) => [key, z.array(z.string().min(1).max(500)).max(50).optional()]))).optional(),
+  dimensions: dimensionsSchema,
+  rationale: rationaleSchema,
+  evidenceRefs: evidenceRefsSchema.optional(),
 }).superRefine((value, context) => {
-  for (const key of dimensionNames) {
+  for (const key of Object.keys(value.dimensions) as (keyof typeof value.dimensions)[]) {
     const score = value.dimensions[key];
     if (score !== undefined && score !== null && !value.rationale[key]) {
       context.addIssue({ code: z.ZodIssueCode.custom, path: ['rationale', key], message: 'Rationale is required for every scored dimension.' });
