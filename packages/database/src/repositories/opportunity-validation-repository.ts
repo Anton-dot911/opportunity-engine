@@ -1,6 +1,6 @@
 import { pool } from '../pool.js';
-export type ValidationInput = {opportunityId:string;title:string;hypothesis:string;method:string;successCriteria:string;budgetEstimate?:number|null;currency?:string|null;timeboxDays:number};
-export type ValidationUpdate = {status:'planned'|'in_progress'|'completed'|'cancelled';outcome?:'confirmed'|'not_confirmed'|'inconclusive'|null;findings?:string|null;evidence?:unknown[]};
+export type ValidationInput = {opportunityId:string;title:string;hypothesis:string;method:string;successCriteria:string;budgetEstimate?:number|null|undefined;currency?:string|null|undefined;timeboxDays:number};
+export type ValidationUpdate = {status:'planned'|'in_progress'|'completed'|'cancelled';outcome?:'confirmed'|'not_confirmed'|'inconclusive'|null|undefined;findings?:string|null|undefined;evidence?:unknown[]|undefined};
 export class OpportunityValidationRepository {
  async create(input:ValidationInput){
   const result=await pool.query(`INSERT INTO opportunity_validations (opportunity_id,title,hypothesis,method,success_criteria,budget_estimate,currency,timebox_days)
