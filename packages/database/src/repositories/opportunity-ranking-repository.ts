@@ -1,7 +1,7 @@
 import { pool } from '../pool.js';
 
 export type RankingOptions = {
-  status?: string;
+  status?: string | undefined;
   limit?: number;
   minimumCoverage?: number;
 };
