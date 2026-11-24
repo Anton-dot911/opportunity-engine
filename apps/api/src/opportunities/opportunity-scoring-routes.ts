@@ -51,7 +51,21 @@ export function registerOpportunityScoringRoutes(
       return reply.code(400).send({ error: 'VALIDATION_ERROR', details: body.success ? undefined : body.error.issues });
     }
     try {
-      const row = await repository.create(id.data, body.data);
+      const dimensions = Object.fromEntries(
+        Object.entries(body.data.dimensions).filter(([, value]) => value !== undefined),
+      ) as Record<string, number | null>;
+      const rationale = Object.fromEntries(
+        Object.entries(body.data.rationale).filter(([, value]) => value !== undefined),
+      ) as Record<string, string>;
+      const evidenceRefs = body.data.evidenceRefs
+        ? Object.fromEntries(Object.entries(body.data.evidenceRefs).filter(([, value]) => value !== undefined)) as Record<string, string[]>
+        : undefined;
+      const input = {
+        dimensions,
+        rationale,
+        ...(evidenceRefs ? { evidenceRefs } : {}),
+      };
+      const row = await repository.create(id.data, input);
       if (!row) return reply.code(404).send({ error: 'OPPORTUNITY_NOT_FOUND' });
       return reply.code(201).send(row);
     } catch (error) {
