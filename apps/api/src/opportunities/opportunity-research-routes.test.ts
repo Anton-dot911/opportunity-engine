@@ -8,7 +8,7 @@ describe('opportunity research routes',()=>{
   expect(response.statusCode).toBe(400);await app.close();
  });
  it('creates research record',async()=>{
-  const app=Fastify();registerOpportunityResearchRoutes(app,{create:async(id)=>({id:'research-id',opportunityId:id,status:'planned',questions:[],findings:[],evidence:[],unknowns:[],conclusion:null})} as never);
+  const app=Fastify();registerOpportunityResearchRoutes(app,{create:async(id:string)=>({id:'research-id',opportunityId:id,status:'planned',questions:[],findings:[],evidence:[],unknowns:[],conclusion:null})} as never);
   const response=await app.inject({method:'POST',url:'/api/opportunities/00000000-0000-4000-8000-000000000001/research'});
   expect(response.statusCode).toBe(201);await app.close();
  });
