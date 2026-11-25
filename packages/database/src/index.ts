@@ -26,3 +26,6 @@ export type { ScoreInput, ScoreDimension } from './repositories/opportunity-scor
 
 export { OpportunityRankingRepository } from './repositories/opportunity-ranking-repository.js';
 export type { RankingOptions } from './repositories/opportunity-ranking-repository.js';
+
+export { OpportunityFeedbackRepository } from './repositories/opportunity-feedback-repository.js';
+export type { FeedbackInput } from './repositories/opportunity-feedback-repository.js';
