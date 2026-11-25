@@ -2,15 +2,15 @@ import { pool } from '../pool.js';
 
 export type FeedbackInput = {
   opportunityId: string;
-  validationId?: string | null;
+  validationId?: string | null | undefined;
   outcome: 'achieved' | 'partially_achieved' | 'not_achieved' | 'unknown';
-  actualMetrics?: unknown[];
-  successFactors?: unknown[];
-  failureFactors?: unknown[];
-  findings?: string | null;
-  evidence?: unknown[];
-  recordedBy?: string | null;
-  occurredAt?: string | null;
+  actualMetrics?: unknown[] | undefined;
+  successFactors?: unknown[] | undefined;
+  failureFactors?: unknown[] | undefined;
+  findings?: string | null | undefined;
+  evidence?: unknown[] | undefined;
+  recordedBy?: string | null | undefined;
+  occurredAt?: string | null | undefined;
 };
 
 export class OpportunityFeedbackRepository {
