@@ -29,3 +29,5 @@ export type { RankingOptions } from './repositories/opportunity-ranking-reposito
 
 export { OpportunityFeedbackRepository } from './repositories/opportunity-feedback-repository.js';
 export type { FeedbackInput } from './repositories/opportunity-feedback-repository.js';
+
+export { OpportunityLearningRepository } from './repositories/opportunity-learning-repository.js';
