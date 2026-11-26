@@ -31,6 +31,14 @@ export function registerOpportunityLearningRoutes(
     }
   });
 
+  app.get('/api/learning/analysis', async (_request, reply) => {
+    try { return await repository.analyze(); }
+    catch (error) {
+      app.log.error(error);
+      return reply.code(503).send({ error: 'OPPORTUNITY_LEARNING_ANALYSIS_UNAVAILABLE' });
+    }
+  });
+
   app.get('/api/learning/insights/:id/reviews', async (request, reply) => {
     const id = idSchema.safeParse((request.params as { id: string }).id);
     if (!id.success) return reply.code(400).send({ error: 'VALIDATION_ERROR' });
