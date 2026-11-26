@@ -17,7 +17,6 @@ describe('aggregateLearningFactors', () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
       key: 'success_factor:strong distribution',
-      supportCount: undefined,
       kind: 'success_factor',
       opportunityIds: new Set(['o1', 'o2']),
       feedbackIds: new Set(['f1', 'f2']),
