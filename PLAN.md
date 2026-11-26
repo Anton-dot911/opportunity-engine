@@ -21,7 +21,7 @@ Core loop: Collect → Normalize → Detect → Context → Hypothesize → Vali
 
 ## 3. MVP scope
 
-Included: configurable sources; manual URL/document submission; RSS/Atom ingestion; document normalization and deduplication; signal extraction; entity extraction; shared context items and relationships; hypothesis generation; structured opportunities; validation tasks; explainable ranking; operator dashboard; AI adapter; run logs and error states.
+Included: configurable sources; RSS/Atom ingestion; document normalization and deduplication; signal/entity/hypothesis extraction; generic Context Layer and immutable Context Packages; structured opportunities; validation and research records; explainable operator-assessed scoring; deterministic ranking; realized-outcome feedback; reviewed Learning Insights; provider-neutral AI Runtime v1; and one bounded operator-triggered Research Loop cycle.
 
 Out of scope initially: unrestricted autonomous browsing; autonomous spending, purchases, payments, outreach, or publishing; model training; large multi-agent framework; microservices/Kubernetes; complex forecasts presented as certainty; mandatory vector database before semantic retrieval is needed.
 
@@ -61,7 +61,7 @@ Initial dimensions: evidence strength, demand intensity, value-capture potential
 Create application skeleton, strict TypeScript, lint/format/type-check/test scripts, validated environment config, local PostgreSQL via Docker Compose, API health endpoint, and CI. Exit: clean install, local startup, DB connectivity, health endpoint, passing baseline checks.
 
 ### Phase 1 — AI Runtime
-Define provider-neutral interfaces, structured output validation, first provider adapter, role profiles, prompt versioning, and execution metadata. Exit: provider call returns validated structured output and can be replaced without domain changes.
+Define provider-neutral interfaces, structured output validation, first provider adapter, versioned prompt definitions, timeout/retry controls, execution logs, token usage, and optional cost estimation. Exit: provider call returns schema-validated structured output through a replaceable adapter boundary.
 
 ### Phase 2 — Discovery
 Add source registry, manual URL/document submission, RSS/Atom connector, collection scheduling/status. Exit: source items are fetched and traceable.
@@ -88,7 +88,7 @@ Generate research tasks for critical unknowns; attach evidence; mark claims supp
 Implement deterministic component scoring and versioned breakdown. Exit: reproducible, comparable rankings.
 
 ### Phase 10 — Bounded Research Loop
-Plan and execute permitted research tasks with budgets, iteration limits, timeouts, and audit trail. Exit: research cycle improves or rejects an opportunity and stops within limits.
+Plan and execute permitted research tasks with budgets, iteration limits, timeouts, evidence validation, and audit trail. Exit: a controlled cycle produces reviewable tasks/findings/unknowns and an advisory next action, while respecting autonomy boundaries.
 
 ### Phase 11 — Experiments and Feedback
 Track operator-approved experiments and actual outcomes; feed lessons into context. Exit: experiment results update opportunity history and knowledge.
@@ -116,8 +116,15 @@ Implementation exists; types and runtime validation are present; relevant tests 
 - Context Layer v1 foundation is implemented: generic context items, provenance, priority/confidence, lifecycle, validity, tags, and review API.
 - Context Packages v1 is implemented: dynamic task-specific selection of active, valid context items and immutable snapshots with retrieval API.
 - Opportunity Engine v1 foundation is implemented: structured opportunity storage, evidence snapshots from hypothesis-linked signals, conservative generation gate, status lifecycle, and API endpoints. The gate intentionally skips generic hypotheses without an explicit economic mechanism.
-- AI Runtime, Validation, Ranking, Research Loop, and Experiments remain future milestones.
+- Opportunity Validation v1 is implemented: bounded validation records with plans, outcomes, findings, evidence, budget, and timebox.
+- Opportunity Research v1 is implemented: one research record per opportunity with structured questions, findings, evidence, unknowns, and conclusion.
+- Opportunity Scoring v1 is implemented: immutable operator-assessed six-dimension snapshots with explicit coverage and unknown-value handling.
+- Opportunity Ranking v1 is implemented: deterministic read-time ordering using the latest eligible score snapshot; ranking is advisory and does not change lifecycle state.
+- Opportunity Feedback v1 is implemented: append-only operator-recorded outcomes, actual metrics, and lessons.
+- Opportunity Learning v1 is implemented: repeated success/failure factors across distinct opportunities, explicit human review, and append-only review history. Accepted insights are available as optional research context, not as automatic policy.
+- AI Runtime v1 is implemented with a provider-neutral adapter contract and initial Anthropic adapter, structured output validation, prompt versioning, bounded timeout/retry, execution logs, token usage, and optional cost estimation.
+- Research Loop v1 is implemented as one operator-triggered bounded cycle over stored opportunity evidence and accepted Learning Insights. External web research and automatic opportunity/score/ranking changes remain out of scope.
 
 ## 13. Next implementation step
 
-Complete Opportunity Engine v1 validation and review workflow, then add validation tasks and evidence-based economics. The initial generator is deterministic and conservative; generic hypotheses are kept for research rather than promoted. Context-package consumption by downstream agents remains a follow-up integration task. Keep context infrastructure domain-agnostic and avoid adding a vector database until retrieval requirements justify it.
+Verify AI Runtime v1 and Research Loop v1 through CI and a configured-provider end-to-end run. Then add a separately permissioned external research connector that can retrieve new sources, preserve source provenance, and enforce source allowlists/rate limits. Do not add autonomous spending, outreach, publishing, automatic opportunity status transitions, or score/ranking/weight recalibration. Keep Context Layer promotion and Learning Insight acceptance under operator control. Keep context infrastructure domain-agnostic and avoid adding a vector database until retrieval requirements justify it.
