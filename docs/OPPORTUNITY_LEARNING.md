@@ -23,7 +23,7 @@ Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit.
 
 - `POST /api/learning/insights/generate` — scan feedback and create or refresh qualifying candidates.
 - `GET /api/learning/insights?status=pending` — list candidates; status is optional.
-- `PATCH /api/learning/insights/:id/review` — set status to `accepted` or `rejected`; optional `reviewedBy`.
+- `PATCH /api/learning/insights/:id/review` — set status to `accepted` or `rejected`; optional `reviewedBy`.\n- `GET /api/learning/insights/:id/reviews` — retrieve the append-only review history for an insight.
 
 ## Limitations
 
