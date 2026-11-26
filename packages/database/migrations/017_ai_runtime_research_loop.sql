@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS ai_execution_logs (
   model TEXT NOT NULL,
   prompt_id TEXT NOT NULL,
   prompt_version TEXT NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('succeeded','failed')),
+  status TEXT NOT NULL CHECK (status IN ('running','succeeded','failed')),
   input_tokens INTEGER NULL CHECK (input_tokens IS NULL OR input_tokens >= 0),
   output_tokens INTEGER NULL CHECK (output_tokens IS NULL OR output_tokens >= 0),
   estimated_cost_usd NUMERIC(14,8) NULL CHECK (estimated_cost_usd IS NULL OR estimated_cost_usd >= 0),
@@ -31,5 +31,7 @@ CREATE TABLE IF NOT EXISTS opportunity_research_runs (
   error_code TEXT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE UNIQUE INDEX IF NOT EXISTS opportunity_research_runs_one_running_idx
+  ON opportunity_research_runs(opportunity_id) WHERE status='running';
 CREATE INDEX IF NOT EXISTS opportunity_research_runs_opportunity_idx
   ON opportunity_research_runs(opportunity_id, created_at DESC);
