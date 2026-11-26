@@ -61,11 +61,15 @@ export class AnthropicAdapter implements AIProviderAdapter {
         };
       } catch (error) {
         lastError = error;
-        const retryable = error instanceof Error && ('retryable' in error ? Boolean(error.retryable) : error.name === 'TimeoutError' || error.name === 'AbortError');
+        const retryable = error instanceof Error && ('retryable' in error ? Boolean(error.retryable) : error.name === 'TimeoutError' || error.name === 'AbortError' || error.name === 'TypeError');
         if (!retryable || attempt > maxRetries) break;
         await new Promise((resolve) => setTimeout(resolve, Math.min(250 * 2 ** (attempt - 1), 1500)));
       }
     }
-    throw lastError instanceof Error ? lastError : new Error('AI_RUNTIME_EXECUTION_FAILED');
+    if (lastError instanceof Error) {
+      Object.assign(lastError, { attempts: Math.min(maxRetries + 1, lastError && 'attempts' in lastError ? Number(lastError.attempts) : maxRetries + 1) });
+      throw lastError;
+    }
+    throw new Error('AI_RUNTIME_EXECUTION_FAILED');
   }
 }
