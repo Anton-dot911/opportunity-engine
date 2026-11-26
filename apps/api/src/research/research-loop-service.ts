@@ -36,13 +36,8 @@ export class ResearchLoopService {
 
     const research = loaded.research ?? await this.researchRepository.create(opportunityId);
     if (!research) throw Object.assign(new Error('OPPORTUNITY_NOT_FOUND'), { code: 'OPPORTUNITY_NOT_FOUND' });
-    const iteration = Number(await this.loopRepository.countRuns(opportunityId)) + 1;
-    if (iteration > env.RESEARCH_MAX_ITERATIONS) {
-      throw Object.assign(new Error('RESEARCH_ITERATION_LIMIT_REACHED'), { code: 'RESEARCH_ITERATION_LIMIT_REACHED' });
-    }
-
     const runId = randomUUID();
-    const inputSnapshot = {
+    const inputSnapshotBase = {
       opportunity: loaded.opportunity,
       currentResearch: {
         questions: research.questions,
@@ -52,7 +47,6 @@ export class ResearchLoopService {
       },
       evidenceRecords: loaded.evidenceRecords,
       acceptedLearningInsights: loaded.acceptedLearningInsights,
-      iteration,
       guardrails: {
         maxTasks: 20,
         evidenceMustReferenceProvidedIds: true,
@@ -60,6 +54,13 @@ export class ResearchLoopService {
         noOpportunityStatusOrScoreChanges: true,
       },
     };
+    const claim = await this.loopRepository.claimRun({
+      opportunityId, researchId: research.id, runId,
+      maxIterations: env.RESEARCH_MAX_ITERATIONS, inputSnapshot: inputSnapshotBase,
+    });
+    if ('error' in claim) throw Object.assign(new Error(claim.error), { code: claim.error });
+    const iteration = claim.iteration;
+    const inputSnapshot = { ...inputSnapshotBase, iteration };
     const adapter = createAIProviderAdapter({ provider: env.AI_PROVIDER, model: env.ANTHROPIC_MODEL, apiKey });
     const started = Date.now();
     try {
@@ -99,9 +100,9 @@ export class ResearchLoopService {
         finding.evidenceIds.map((evidenceId) => ({ evidenceId, claim: finding.claim, source: 'opportunity_evidence_snapshot' })),
       );
       const saved = await this.loopRepository.saveRun({
-        opportunityId, researchId: research.id, runId, iteration, inputSnapshot,
-        outputSnapshot: result.output, nextAction: result.output.nextAction,
-        questions, findings, evidence, unknowns: result.output.remainingUnknowns,
+        researchId: research.id, runId, outputSnapshot: result.output,
+        nextAction: result.output.nextAction, questions, findings, evidence,
+        unknowns: result.output.remainingUnknowns,
       });
       return {
         run: saved.run,
@@ -120,9 +121,7 @@ export class ResearchLoopService {
         status: 'failed', inputTokens: null, outputTokens: null, estimatedCostUsd: null,
         durationMs, attempts: 1, errorCode: code,
       });
-      await this.loopRepository.saveFailedRun({
-        opportunityId, researchId: research.id, iteration, inputSnapshot, errorCode: code,
-      });
+      await this.loopRepository.saveFailedRun({ runId, errorCode: code });
       throw Object.assign(new Error(code), { code });
     }
   }
