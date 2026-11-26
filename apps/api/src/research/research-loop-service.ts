@@ -119,7 +119,7 @@ export class ResearchLoopService {
         runId, taskType: 'opportunity_research_cycle', provider: 'anthropic', model: env.ANTHROPIC_MODEL,
         promptId: researchCyclePrompt.id, promptVersion: researchCyclePrompt.version,
         status: 'failed', inputTokens: null, outputTokens: null, estimatedCostUsd: null,
-        durationMs, attempts: 1, errorCode: code,
+        durationMs, attempts: error instanceof Error && 'attempts' in error ? Number(error.attempts) : 1, errorCode: code,
       });
       await this.loopRepository.saveFailedRun({ runId, errorCode: code });
       throw Object.assign(new Error(code), { code });
