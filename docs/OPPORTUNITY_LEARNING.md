@@ -26,9 +26,23 @@ Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit.
 - `PATCH /api/learning/insights/:id/review` — set status to `accepted` or `rejected`; optional `reviewedBy`.
 - `GET /api/learning/insights/:id/reviews` — retrieve the append-only review history for an insight.
 
+## Evidence analysis v1
+
+`GET /api/learning/analysis` derives a read-only analysis from existing learning insights:
+
+- Factor classification uses deterministic keyword groups: distribution, pricing, product, customer, operations, marketing, finance, regulation, technology, or other.
+- Outcome analysis reports recorded achieved, partially achieved, not achieved, and unknown counts, plus a descriptive positive-outcome rate.
+- Contradiction detection flags the same normalized factor when it appears as both a success and failure factor; it does not resolve the conflict.
+- Evidence strength is a recurrence heuristic based on support count and distinct opportunity count: limited, moderate, or strong.
+- Learning recommendations are advisory: collect more independent feedback, inspect outcome variation, review conflicting feedback, or retain the observed pattern.
+
+The analysis is computed at read time. It does not write to learning insights, Context Layer, opportunity scores, ranking, or opportunity lifecycle status.
+
 ## Limitations
 
 - Exact normalized-text recurrence only; semantic similarity and causal inference are out of scope.
 - Two distinct opportunities are a minimum recurrence threshold, not statistical proof.
 - No automated research, recommendations, score recalibration, context promotion, or model fine-tuning.
 - Factors remain operator-entered observations. The system does not establish that a factor caused an outcome.
+- Keyword classification may be incomplete or ambiguous; unmatched statements are classified as `other`.
+- Outcome rates are descriptive summaries of recorded feedback, not forecasts or causal estimates.
