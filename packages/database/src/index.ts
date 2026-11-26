@@ -31,3 +31,4 @@ export { OpportunityFeedbackRepository } from './repositories/opportunity-feedba
 export type { FeedbackInput } from './repositories/opportunity-feedback-repository.js';
 
 export { OpportunityLearningRepository } from './repositories/opportunity-learning-repository.js';
+export { analyzeLearningInsights, classifyLearningFactor, calculateLearningEvidenceStrength } from './repositories/opportunity-learning-analysis.js';
