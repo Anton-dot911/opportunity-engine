@@ -7,26 +7,27 @@ Extract recurring, operator-recorded success and failure factors from realized o
 ## Deterministic generation
 
 - Reads existing `opportunity_feedback` records only.
-- Normalizes factor text for matching (trim, lowercase, collapse whitespace).
+- Normalizes factor text with trim, locale-independent lowercase, and whitespace collapsing.
+- Counts a factor at most once per feedback record.
 - A factor qualifies only when it appears in feedback from at least two distinct opportunities.
 - Success and failure factors are aggregated separately.
 - Each candidate preserves feedback IDs, distinct opportunity count, support count, and outcome counts.
 - A stable SHA-256 fingerprint prevents duplicate candidate insertion on repeated generation.
-- Existing candidates are not silently overwritten when new feedback arrives; v1 generation is insert-only.
+- Repeated generation refreshes provenance and aggregate counts for existing fingerprints without changing their review status.
 
 ## Human review
 
-Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit. Acceptance does not automatically promote the factor into shared context, alter opportunity scores, weights, status, or ranking, or trigger model training.
+Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit. Each review transition is appended to `opportunity_learning_reviews`, preserving previous/new status, reviewer, and timestamp. Acceptance does not automatically promote the factor into shared context, alter opportunity scores, weights, status, or ranking, or trigger model training.
 
 ## API
 
-- `POST /api/learning/insights/generate` — scan feedback and create qualifying candidates.
+- `POST /api/learning/insights/generate` — scan feedback and create or refresh qualifying candidates.
 - `GET /api/learning/insights?status=pending` — list candidates; status is optional.
 - `PATCH /api/learning/insights/:id/review` — set status to `accepted` or `rejected`; optional `reviewedBy`.
 
 ## Limitations
 
 - Exact normalized-text recurrence only; semantic similarity and causal inference are out of scope.
-- Two occurrences across two opportunities are a minimum recurrence threshold, not statistical proof.
+- Two distinct opportunities are a minimum recurrence threshold, not statistical proof.
 - No automated research, recommendations, score recalibration, context promotion, or model fine-tuning.
 - Factors remain operator-entered observations. The system does not establish that a factor caused an outcome.
