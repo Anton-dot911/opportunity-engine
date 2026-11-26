@@ -17,7 +17,7 @@ Extract recurring, operator-recorded success and failure factors from realized o
 
 ## Human review
 
-Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit. Each review transition is appended to `opportunity_learning_reviews`, preserving previous/new status, reviewer, and timestamp. Acceptance does not automatically promote the factor into shared context, alter opportunity scores, weights, status, or ranking, or trigger model training.
+Candidates have `pending`, `accepted`, or `rejected` status. Review is explicit. Each review transition is appended to `opportunity_learning_reviews`, preserving previous/new status, reviewer, and timestamp. Acceptance does not automatically promote the factor into shared context, alter opportunity scores, weights, status, or ranking, or trigger model training. Accepted insights may be supplied as additional context to a Research Loop run; they remain contextual patterns, not proof about the selected opportunity.
 
 ## API
 
