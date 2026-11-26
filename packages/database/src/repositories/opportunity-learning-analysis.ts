@@ -47,7 +47,7 @@ export function calculateLearningEvidenceStrength(supportCount: number, opportun
 }
 
 function normalize(statement: string): string {
-  return statement.trim().toLowerCase().replace(/\\s+/g, ' ');
+  return statement.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 export function analyzeLearningInsights(insights: LearningInsight[]) {
