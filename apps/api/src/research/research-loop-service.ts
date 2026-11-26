@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { AnthropicAdapter, researchCyclePrompt } from '@oe/ai-runtime';
+import { createAIProviderAdapter, researchCyclePrompt } from '@oe/ai-runtime';
 import { OpportunityResearchLoopRepository, OpportunityResearchRepository } from '@oe/database';
 import { env } from '../config/env.js';
 
@@ -59,7 +59,7 @@ export class ResearchLoopService {
         noOpportunityStatusOrScoreChanges: true,
       },
     };
-    const adapter = new AnthropicAdapter(env.ANTHROPIC_MODEL, env.ANTHROPIC_API_KEY);
+    const adapter = createAIProviderAdapter({ provider: env.AI_PROVIDER, model: env.ANTHROPIC_MODEL, apiKey: env.ANTHROPIC_API_KEY });
     const started = Date.now();
     try {
       const result = await adapter.generateStructured({
