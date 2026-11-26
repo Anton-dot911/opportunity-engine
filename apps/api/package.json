@@ -18,7 +18,8 @@
     "@oe/connectors": "workspace:*",
     "fastify": "^5.5.0",
     "zod": "^4.1.5",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "@oe/ai-runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
