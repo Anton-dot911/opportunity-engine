@@ -29,7 +29,8 @@ export class ResearchLoopService {
   ) {}
 
   async execute(opportunityId: string) {
-    if (!env.ANTHROPIC_API_KEY) throw Object.assign(new Error('AI_PROVIDER_NOT_CONFIGURED'), { code: 'AI_PROVIDER_NOT_CONFIGURED' });
+    const apiKey = env.ANTHROPIC_API_KEY;
+    if (!apiKey) throw Object.assign(new Error('AI_PROVIDER_NOT_CONFIGURED'), { code: 'AI_PROVIDER_NOT_CONFIGURED' });
     const loaded = await this.loopRepository.loadInput(opportunityId);
     if (!loaded) throw Object.assign(new Error('OPPORTUNITY_NOT_FOUND'), { code: 'OPPORTUNITY_NOT_FOUND' });
 
@@ -59,7 +60,7 @@ export class ResearchLoopService {
         noOpportunityStatusOrScoreChanges: true,
       },
     };
-    const adapter = createAIProviderAdapter({ provider: env.AI_PROVIDER, model: env.ANTHROPIC_MODEL, apiKey: env.ANTHROPIC_API_KEY });
+    const adapter = createAIProviderAdapter({ provider: env.AI_PROVIDER, model: env.ANTHROPIC_MODEL, apiKey });
     const started = Date.now();
     try {
       const result = await adapter.generateStructured({
