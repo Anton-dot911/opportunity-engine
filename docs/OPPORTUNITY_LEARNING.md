@@ -42,7 +42,7 @@ The analysis is computed at read time. It does not write to learning insights, C
 
 - Exact normalized-text recurrence only; semantic similarity and causal inference are out of scope.
 - Two distinct opportunities are a minimum recurrence threshold, not statistical proof.
-- No automated research, recommendations, score recalibration, context promotion, or model fine-tuning.
+- No automated research, score recalibration, context promotion, or model fine-tuning; recommendations in the evidence-analysis endpoint are advisory only.
 - Factors remain operator-entered observations. The system does not establish that a factor caused an outcome.
-- Keyword classification may be incomplete or ambiguous; unmatched statements are classified as `other`.
+- Keyword classification uses an initial English-language keyword taxonomy and may be incomplete or ambiguous; unmatched statements are classified as `other`.
 - Outcome rates are descriptive summaries of recorded feedback, not forecasts or causal estimates.
