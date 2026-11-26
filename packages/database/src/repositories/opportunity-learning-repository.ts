@@ -103,7 +103,15 @@ export class OpportunityLearningRepository {
     return result.rows;
   }
 
-  async listReviews(id: string) {\n    const result = await pool.query(\n      'SELECT * FROM opportunity_learning_reviews WHERE insight_id = $1 ORDER BY reviewed_at DESC, id DESC',\n      [id],\n    );\n    return result.rows;\n  }\n\n  async review(id: string, status: 'accepted' | 'rejected', reviewedBy?: string) {
+  async listReviews(id: string) {
+    const result = await pool.query(
+      'SELECT * FROM opportunity_learning_reviews WHERE insight_id = $1 ORDER BY reviewed_at DESC, id DESC',
+      [id],
+    );
+    return result.rows;
+  }
+
+  async review(id: string, status: 'accepted' | 'rejected', reviewedBy?: string) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
