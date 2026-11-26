@@ -11,8 +11,8 @@ const envSchema = z.object({
   ANTHROPIC_MODEL: z.string().default('claude-sonnet-4-20250514'),
   AI_MAX_RETRIES: z.coerce.number().int().min(0).max(3).default(1),
   AI_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
-  AI_INPUT_COST_PER_MILLION: z.coerce.number().nonnegative().optional(),
-  AI_OUTPUT_COST_PER_MILLION: z.coerce.number().nonnegative().optional(),
+  AI_INPUT_COST_PER_MILLION: z.preprocess((value) => value === '' ? undefined : value, z.coerce.number().nonnegative().optional()),
+  AI_OUTPUT_COST_PER_MILLION: z.preprocess((value) => value === '' ? undefined : value, z.coerce.number().nonnegative().optional()),
   RESEARCH_MAX_ITERATIONS: z.coerce.number().int().min(1).max(10).default(5),
 });
 
