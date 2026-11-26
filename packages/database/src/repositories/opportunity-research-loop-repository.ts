@@ -36,29 +36,62 @@ export class OpportunityResearchLoopRepository {
     };
   }
 
+  async claimRun(input: {
+    opportunityId: string; researchId: string; runId: string;
+    maxIterations: number; inputSnapshot: unknown;
+  }) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [input.opportunityId]);
+      const running = await client.query(
+        "SELECT id FROM opportunity_research_runs WHERE opportunity_id=$1 AND status='running' LIMIT 1",
+        [input.opportunityId],
+      );
+      if (running.rows[0]) {
+        await client.query('ROLLBACK');
+        return { error: 'RESEARCH_CYCLE_ALREADY_RUNNING' as const };
+      }
+      const count = await client.query(
+        'SELECT count(*)::integer AS count FROM opportunity_research_runs WHERE opportunity_id=$1',
+        [input.opportunityId],
+      );
+      const iteration = Number(count.rows[0]?.count ?? 0) + 1;
+      if (iteration > input.maxIterations) {
+        await client.query('ROLLBACK');
+        return { error: 'RESEARCH_ITERATION_LIMIT_REACHED' as const };
+      }
+      const run = await client.query(
+        `INSERT INTO opportunity_research_runs
+         (opportunity_id,research_id,ai_run_id,status,iteration,input_snapshot)
+         VALUES ($1,$2,$3,'running',$4,$5::jsonb) RETURNING *`,
+        [input.opportunityId,input.researchId,input.runId,iteration,JSON.stringify(input.inputSnapshot)],
+      );
+      await client.query('COMMIT');
+      return { run: run.rows[0], iteration };
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   async saveRun(input: {
-    opportunityId: string;
-    researchId: string;
-    runId: string;
-    iteration: number;
-    inputSnapshot: unknown;
-    outputSnapshot: unknown;
-    nextAction: string;
-    questions: unknown[];
-    findings: unknown[];
-    evidence: unknown[];
-    unknowns: unknown[];
+    runId: string; outputSnapshot: unknown; nextAction: string;
+    researchId: string; questions: unknown[]; findings: unknown[];
+    evidence: unknown[]; unknowns: unknown[];
   }) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       const run = await client.query(
-        `INSERT INTO opportunity_research_runs
-         (opportunity_id,research_id,ai_run_id,status,iteration,input_snapshot,output_snapshot,next_action)
-         VALUES ($1,$2,$3,'succeeded',$4,$5::jsonb,$6::jsonb,$7) RETURNING *`,
-        [input.opportunityId,input.researchId,input.runId,input.iteration,
-         JSON.stringify(input.inputSnapshot),JSON.stringify(input.outputSnapshot),input.nextAction],
+        `UPDATE opportunity_research_runs
+         SET status='succeeded', output_snapshot=$2::jsonb, next_action=$3
+         WHERE ai_run_id=$1 AND status='running' RETURNING *`,
+        [input.runId,JSON.stringify(input.outputSnapshot),input.nextAction],
       );
+      if (!run.rows[0]) throw new Error('RESEARCH_RUN_NOT_FOUND');
       const updated = await client.query(
         `UPDATE opportunity_research SET status='in_progress',
           questions=$2::jsonb, findings=$3::jsonb, evidence=$4::jsonb,
@@ -77,17 +110,13 @@ export class OpportunityResearchLoopRepository {
     }
   }
 
-  async saveFailedRun(input: {
-    opportunityId: string; researchId: string; iteration: number;
-    inputSnapshot: unknown; errorCode: string;
-  }) {
+  async saveFailedRun(input: { runId: string; errorCode: string }) {
     const result = await pool.query(
-      `INSERT INTO opportunity_research_runs
-       (opportunity_id,research_id,status,iteration,input_snapshot,error_code)
-       VALUES ($1,$2,'failed',$3,$4::jsonb,$5) RETURNING *`,
-      [input.opportunityId,input.researchId,input.iteration,JSON.stringify(input.inputSnapshot),input.errorCode],
+      `UPDATE opportunity_research_runs SET status='failed', error_code=$2
+       WHERE ai_run_id=$1 AND status='running' RETURNING *`,
+      [input.runId,input.errorCode],
     );
-    return result.rows[0];
+    return result.rows[0] ?? null;
   }
 
   async recordExecution(input: {
