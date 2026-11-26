@@ -31,6 +31,17 @@ export function registerOpportunityLearningRoutes(
     }
   });
 
+  app.get('/api/learning/insights/:id/reviews', async (request, reply) => {
+    const id = idSchema.safeParse((request.params as { id: string }).id);
+    if (!id.success) return reply.code(400).send({ error: 'VALIDATION_ERROR' });
+    try {
+      return await repository.listReviews(id.data);
+    } catch (error) {
+      app.log.error(error);
+      return reply.code(503).send({ error: 'OPPORTUNITY_LEARNING_REVIEWS_UNAVAILABLE' });
+    }
+  });
+
   app.patch('/api/learning/insights/:id/review', async (request, reply) => {
     const id = idSchema.safeParse((request.params as { id: string }).id);
     const body = reviewSchema.safeParse(request.body);
