@@ -45,7 +45,7 @@ describe('analyzeLearningInsights', () => {
       evidenceStrength: { band: 'moderate' },
     });
     expect(result.contradictions).toHaveLength(1);
-    expect(result.contradictions[0].requiresHumanReview).toBe(true);
+    expect(result.contradictions[0]?.requiresHumanReview).toBe(true);
     expect(result.recommendations[0]).toMatchObject({
       insightId: 'success-1',
       action: 'review_conflicting_feedback',
@@ -60,6 +60,6 @@ describe('analyzeLearningInsights', () => {
       support_count: 2, opportunity_count: 2, feedback_ids: [],
       outcome_counts: {}, status: 'pending',
     }]);
-    expect(result.classified[0].outcomeProfile.positiveRate).toBeNull();
+    expect(result.classified[0]?.outcomeProfile.positiveRate).toBeNull();
   });
 });
