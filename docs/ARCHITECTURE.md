@@ -13,7 +13,7 @@ Start with a modular monolith. Keep web, API, and background worker as separate 
 - PostgreSQL for persistent data; pgvector is optional and deferred until semantic retrieval is justified.
 - PostgreSQL-backed job queue initially to avoid mandatory Redis.
 - Vitest for tests; Docker Compose for local services.
-- Provider-neutral AI runtime, with Anthropic as the first adapter.
+- Provider-neutral AI Runtime package with a replaceable adapter interface; Anthropic is the first adapter.
 
 Pin exact dependency versions during implementation after checking current compatibility.
 
@@ -47,13 +47,21 @@ Source Registry → Ingestion → Document Normalization → Document Store → 
 
 Every stage records status and input references. Failed processing must be retryable without duplicate records.
 
-## AI runtime boundary
+## AI Runtime v1
 
-Domain modules call provider-neutral structured generation interfaces. Adapters handle provider/model configuration, schema support, timeout, bounded retries, usage metadata, normalized errors, and prompt/model version identifiers. Validate output before persistence.
+`packages/ai-runtime` owns provider-neutral structured generation contracts, provider adapter factory, versioned prompt definitions, runtime output validation, timeout, bounded retry, usage metadata, and normalized execution results. The first adapter is Anthropic; provider SDK/HTTP details stay inside the adapter. API orchestration records provider/model, prompt ID/version, status, token usage, duration, attempts, and optional estimated cost in `ai_execution_logs`. Cost remains null unless explicit per-million-token rates are configured; token counts are retained independently. Secrets remain server-side.
+
+The runtime boundary is intentionally separate from domain logic. Opportunity and research modules consume validated typed output and must still enforce domain-specific evidence and state-transition rules.
 
 ## Context Layer boundary
 
 The Context Layer is domain-agnostic. It stores typed, versioned context items, relationships, provenance, lifecycle state, confidence, and timestamps. Opportunity Engine consumes this generic service; the context layer must not depend on Opportunity Engine-specific workflows.
+
+## Research Loop v1
+
+The first controlled cycle is operator-triggered at `POST /api/opportunities/:id/research/run`. One request performs one bounded iteration: load one opportunity and its existing research record, retrieve only `accepted` Learning Insights, assemble the opportunity's stored evidence snapshot, ask the AI Runtime to prioritize unknowns and propose research tasks/findings, validate structured output and evidence references, then persist an immutable run snapshot plus the updated research record. Each run has an iteration number and is capped by `RESEARCH_MAX_ITERATIONS`; the AI call is bounded by timeout and retry limits.
+
+This first slice is an evidence-analysis loop over data already stored in Opportunity Engine. It does not perform open-web search, fetch new external sources, contact customers, spend money, or execute experiments. AI-generated findings are research candidates; evidence-backed findings must reference IDs in the supplied evidence snapshot. Accepted Learning Insights are contextual patterns, not proof about the selected opportunity. The loop does not change opportunity status, scores, ranking, economics, or financial decisions. Its `nextAction` is advisory and requires operator action.
 
 ## Background jobs
 

@@ -7,10 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "typecheck": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && tsc --noEmit -p tsconfig.json",
-    "test": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && vitest run",
+    "typecheck": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && pnpm --filter @oe/ai-runtime build && tsc --noEmit -p tsconfig.json",
+    "test": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && pnpm --filter @oe/ai-runtime build && vitest run",
     "lint": "prettier --check src",
-    "test:integration": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && vitest run src/sources.integration.test.ts"
+    "test:integration": "pnpm --filter @oe/database build && pnpm --filter @oe/connectors build && pnpm --filter @oe/ai-runtime build && vitest run src/sources.integration.test.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
@@ -18,7 +18,8 @@
     "@oe/connectors": "workspace:*",
     "fastify": "^5.5.0",
     "zod": "^4.1.5",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "@oe/ai-runtime": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
