@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { pool } from '../pool.js';
+import { analyzeLearningInsights, type LearningInsight } from './opportunity-learning-analysis.js';
 
 type FeedbackRow = {
   id: string;
@@ -101,6 +102,16 @@ export class OpportunityLearningRepository {
       [status ?? null],
     );
     return result.rows;
+  }
+
+  async analyze() {
+    const result = await pool.query<LearningInsight>(
+      `SELECT id, kind, statement, support_count, opportunity_count,
+              feedback_ids, outcome_counts, status
+       FROM opportunity_learning_insights
+       ORDER BY created_at DESC, id DESC`,
+    );
+    return analyzeLearningInsights(result.rows);
   }
 
   async listReviews(id: string) {

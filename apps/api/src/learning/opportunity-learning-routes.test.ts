@@ -8,6 +8,7 @@ describe('opportunity learning routes', () => {
     registerOpportunityLearningRoutes(app, {
       generate: async () => ({ created: [] }),
       list: async () => [],
+      analyze: async () => ({ classified: [], contradictions: [], recommendations: [] }),
       listReviews: async (id: string) => [{ insight_id: id, new_status: 'accepted' }],
       review: async () => null,
     } as never);
@@ -25,11 +26,33 @@ describe('opportunity learning routes', () => {
     registerOpportunityLearningRoutes(app, {
       generate: async () => ({ created: [] }),
       list: async () => [],
+      analyze: async () => ({ classified: [], contradictions: [], recommendations: [] }),
       listReviews: async () => [],
       review: async () => null,
     } as never);
     const response = await app.inject({ method: 'GET', url: '/api/learning/insights/not-a-uuid/reviews' });
     expect(response.statusCode).toBe(400);
+    await app.close();
+  });
+});
+
+describe('opportunity learning analysis route', () => {
+  it('returns deterministic evidence analysis', async () => {
+    const app = Fastify();
+    registerOpportunityLearningRoutes(app, {
+      generate: async () => ({ created: [] }),
+      list: async () => [],
+      analyze: async () => ({
+        classified: [{ insightId: 'i1', category: 'distribution' }],
+        contradictions: [],
+        recommendations: [],
+      }),
+      listReviews: async () => [],
+      review: async () => null,
+    } as never);
+    const response = await app.inject({ method: 'GET', url: '/api/learning/analysis' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().classified[0].category).toBe('distribution');
     await app.close();
   });
 });
